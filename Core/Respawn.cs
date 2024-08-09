@@ -1,6 +1,6 @@
 ﻿namespace Server
 {
-    class Respawn
+    public class Respawn
     {
     }
 }

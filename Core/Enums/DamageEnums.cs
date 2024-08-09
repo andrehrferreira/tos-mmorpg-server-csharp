@@ -1,0 +1,60 @@
+﻿public enum Dices
+{
+    None,
+    D1D4,
+    D2D4,
+    D3D4,
+    D4D4,
+    D5D4,
+    D6D4,
+    D1D6,
+    D2D6,
+    D3D6,
+    D4D6,
+    D5D6,
+    D6D6,
+    D1D8,
+    D2D8,
+    D3D8,
+    D4D8,
+    D5D8,
+    D6D8,
+    D1D10,
+    D2D10,
+    D3D10,
+    D4D10,
+    D5D10,
+    D6D10,
+    D1D12,
+    D2D12,
+    D3D12,
+    D4D12,
+    D5D12,
+    D6D12,
+    D1D20,
+    D2D20,
+    D3D20,
+    D4D20,
+    D5D20,
+    D6D20
+}
+
+public enum DamageType
+{
+    None,
+    Physic,
+    Fire,
+    Cold,
+    Poison,
+    Energy,
+    Light,
+    Dark,
+    Bleed
+}
+
+public enum HealType
+{
+    Life,
+    Mana,
+    Stamina
+}

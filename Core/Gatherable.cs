@@ -1,6 +1,12 @@
 ﻿namespace Server
 {
-    class Gatherable
+    public class Gatherable
     {
     }
+
+    public class GatherableResource 
+    { 
+
+    }
+
 }

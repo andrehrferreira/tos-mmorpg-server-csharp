@@ -3,44 +3,44 @@
   "WorkspaceRootPath": "G:\\ToS3\\Server\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
-      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
+      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\entities\\entity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\entities\\entity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\utils\\guid.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\utils\\guid.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\network\\websocket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\network\\websocket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\extensions\\skillnameextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\extensions\\skillnameextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\maps.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\maps.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\entities\\humanoid.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\entities\\humanoid.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\network\\packets\\pingpacket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\network\\packets\\pingpacket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\network\\packet.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\network\\packet.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\network\\packets\\basepackets.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\network\\packets\\basepackets.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\party.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\party.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\engine\\condition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\engine\\condition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\gatherable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\gatherable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\entities\\entity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\entities\\entity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\entities\\creature.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\entities\\creature.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|g:\\tos3\\server\\core\\entities\\player.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1E756004-4960-4C78-9FF9-39CCCA456580}|Server.csproj|solutionrelative:core\\entities\\player.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -50,140 +50,140 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "WebSocket.cs",
+              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Network\\WebSocket.cs",
+              "RelativeDocumentMoniker": "Core\\Network\\WebSocket.cs",
+              "ToolTip": "G:\\ToS3\\Server\\Core\\Network\\WebSocket.cs",
+              "RelativeToolTip": "Core\\Network\\WebSocket.cs",
+              "ViewState": "AQIAABcAAAAAAAAAAAAUwCAAAAAMAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-09T18:00:58.457Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "SkillNameExtensions.cs",
+              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Extensions\\SkillNameExtensions.cs",
+              "RelativeDocumentMoniker": "Core\\Extensions\\SkillNameExtensions.cs",
+              "ToolTip": "G:\\ToS3\\Server\\Core\\Extensions\\SkillNameExtensions.cs",
+              "RelativeToolTip": "Core\\Extensions\\SkillNameExtensions.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAswAYAAAAbAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-09T17:48:56.348Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Entity.cs",
+              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Entities\\Entity.cs",
+              "RelativeDocumentMoniker": "Core\\Entities\\Entity.cs",
+              "ToolTip": "G:\\ToS3\\Server\\Core\\Entities\\Entity.cs",
+              "RelativeToolTip": "Core\\Entities\\Entity.cs",
+              "ViewState": "AQIAAAsDAAAAAAAAAAAkwBIDAAAbAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-09T17:39:02.316Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "BasePackets.cs",
+              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Network\\Packets\\BasePackets.cs",
+              "RelativeDocumentMoniker": "Core\\Network\\Packets\\BasePackets.cs",
+              "ToolTip": "G:\\ToS3\\Server\\Core\\Network\\Packets\\BasePackets.cs",
+              "RelativeToolTip": "Core\\Network\\Packets\\BasePackets.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-09T17:20:27.137Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "PingPacket.cs",
+              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Network\\Packets\\PingPacket.cs",
+              "RelativeDocumentMoniker": "Core\\Network\\Packets\\PingPacket.cs",
+              "ToolTip": "G:\\ToS3\\Server\\Core\\Network\\Packets\\PingPacket.cs",
+              "RelativeToolTip": "Core\\Network\\Packets\\PingPacket.cs",
+              "ViewState": "AQIAAA0AAAAAAAAAAAA1wBIAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-09T17:20:19.064Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Packet.cs",
+              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Network\\Packet.cs",
+              "RelativeDocumentMoniker": "Core\\Network\\Packet.cs",
+              "ToolTip": "G:\\ToS3\\Server\\Core\\Network\\Packet.cs",
+              "RelativeToolTip": "Core\\Network\\Packet.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAUAAABwAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-09T17:18:07.381Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Maps.cs",
+              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Maps.cs",
+              "RelativeDocumentMoniker": "Core\\Maps.cs",
+              "ToolTip": "G:\\ToS3\\Server\\Core\\Maps.cs",
+              "RelativeToolTip": "Core\\Maps.cs",
+              "ViewState": "AQIAAKwAAAAAAAAAAAAywMQAAAAVAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-09T16:53:23.408Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Party.cs",
+              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Party.cs",
+              "RelativeDocumentMoniker": "Core\\Party.cs",
+              "ToolTip": "G:\\ToS3\\Server\\Core\\Party.cs",
+              "RelativeToolTip": "Core\\Party.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAALAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-09T15:19:51.299Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": ".gitignore",
-              "DocumentMoniker": "G:\\ToS3\\Server\\.gitignore",
-              "RelativeDocumentMoniker": ".gitignore",
-              "ToolTip": "G:\\ToS3\\Server\\.gitignore",
-              "RelativeToolTip": ".gitignore",
-              "ViewState": "AQIAAAsAAAAAAAAAAAAcwCEAAAAAAAAA",
-              "Icon": "00000000-0000-0000-0000-000000000000.000000|iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAF8SURBVDhPjVNLTgJBEG1lwpoFB3GNK9fieA48hD8iwT/ihwgSDAIHgAGXXsEV18CNzL/LquqZdsYM6kteXqcy3fWqpmpNRBgOhyABBEgpAFVKPIMUcYzUyOU\u002BXM/b2qtU3vkSfRjjZTCAMAw1A2LwzdFoBPP5HNqdzuL27n4juibWI\u002BUshBA1DIkhEx9iEorFotgslQqGYbxxAGFEqt1MxmPWJLbLZdZ\u002Bv89q5PMFPiTR6z2zdaxR0fXA0XTBcVywkb4fwHXjRteecIDNQ7UmExVYAdPcxYaqclN46na5WenMKjtlVnTYwcXlVYaDqImW9beD5N/TeGy32QHXm6hZ03ZgiSQHp2fnWQ4oBmJqWSqwAqZpZjt4aLXAD4J0VqyZsmoubfB8H2r1eoaD6NXZ9HcHO\u002BSA3f4AjifXl8rItOETM8ckB9WTWpYD9RdeZ1PWVWAHWXPQaDb59f/w8LiqHeh1pvGkCaP6qB8yXusoxmuNZ7XmII4O9vGuEF86osuDYRkpYQAAAABJRU5ErkJggg==",
-              "WhenOpened": "2024-08-08T16:37:04.306Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "GUID.cs",
-              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Utils\\GUID.cs",
-              "RelativeDocumentMoniker": "Core\\Utils\\GUID.cs",
-              "ToolTip": "G:\\ToS3\\Server\\Core\\Utils\\GUID.cs",
-              "RelativeToolTip": "Core\\Utils\\GUID.cs",
-              "ViewState": "AQIAAAgAAAAAAAAAAAAqwBIAAAAGAAAA",
+              "DocumentIndex": 8,
+              "Title": "Condition.cs",
+              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Engine\\Condition.cs",
+              "RelativeDocumentMoniker": "Core\\Engine\\Condition.cs",
+              "ToolTip": "G:\\ToS3\\Server\\Core\\Engine\\Condition.cs",
+              "RelativeToolTip": "Core\\Engine\\Condition.cs",
+              "ViewState": "AQIAAGUAAAAAAAAAAAAYwGoAAAANAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-08T16:28:49.306Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Gatherable.cs",
-              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Gatherable.cs",
-              "RelativeDocumentMoniker": "Core\\Gatherable.cs",
-              "ToolTip": "G:\\ToS3\\Server\\Core\\Gatherable.cs",
-              "RelativeToolTip": "Core\\Gatherable.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAAFAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-08T16:22:43.28Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Packet.cs",
-              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Network\\Packet.cs",
-              "RelativeDocumentMoniker": "Core\\Network\\Packet.cs",
-              "ToolTip": "G:\\ToS3\\Server\\Core\\Network\\Packet.cs",
-              "RelativeToolTip": "Core\\Network\\Packet.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-08T16:06:01.997Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Humanoid.cs",
-              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Entities\\Humanoid.cs",
-              "RelativeDocumentMoniker": "Core\\Entities\\Humanoid.cs",
-              "ToolTip": "G:\\ToS3\\Server\\Core\\Entities\\Humanoid.cs",
-              "RelativeToolTip": "Core\\Entities\\Humanoid.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAAFAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-08T16:02:36.343Z",
+              "WhenOpened": "2024-08-09T14:35:58.93Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 9,
-              "Title": "Player.cs",
-              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Entities\\Player.cs",
-              "RelativeDocumentMoniker": "Core\\Entities\\Player.cs",
-              "ToolTip": "G:\\ToS3\\Server\\Core\\Entities\\Player.cs",
-              "RelativeToolTip": "Core\\Entities\\Player.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAAAhAAAA",
+              "Title": "Gatherable.cs",
+              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Gatherable.cs",
+              "RelativeDocumentMoniker": "Core\\Gatherable.cs",
+              "ToolTip": "G:\\ToS3\\Server\\Core\\Gatherable.cs",
+              "RelativeToolTip": "Core\\Gatherable.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAADwvwgAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-08T16:02:03.215Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "Creature.cs",
-              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Entities\\Creature.cs",
-              "RelativeDocumentMoniker": "Core\\Entities\\Creature.cs",
-              "ToolTip": "G:\\ToS3\\Server\\Core\\Entities\\Creature.cs",
-              "RelativeToolTip": "Core\\Entities\\Creature.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-08T16:00:14.705Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "Entity.cs",
-              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Entities\\Entity.cs",
-              "RelativeDocumentMoniker": "Core\\Entities\\Entity.cs",
-              "ToolTip": "G:\\ToS3\\Server\\Core\\Entities\\Entity.cs",
-              "RelativeToolTip": "Core\\Entities\\Entity.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAEAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-08T15:59:34.599Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Maps.cs",
-              "DocumentMoniker": "G:\\ToS3\\Server\\Core\\Maps.cs",
-              "RelativeDocumentMoniker": "Core\\Maps.cs",
-              "ToolTip": "G:\\ToS3\\Server\\Core\\Maps.cs",
-              "RelativeToolTip": "Core\\Maps.cs",
-              "ViewState": "AQIAABMAAAAAAAAAAAA6wCAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-08T15:57:53.973Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Program.cs",
-              "DocumentMoniker": "G:\\ToS3\\Server\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "G:\\ToS3\\Server\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-08T15:30:39.085Z",
+              "WhenOpened": "2024-08-09T13:55:18.001Z",
               "EditorCaption": ""
             }
           ]
