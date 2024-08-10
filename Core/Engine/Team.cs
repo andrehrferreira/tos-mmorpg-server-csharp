@@ -31,7 +31,7 @@ namespace Server
             switch (Kind)
             {
                 case TeamKind.Monsters:
-                    return (other.Kind == TeamKind.Players && !other.Self.States.HasFlag((int)EntityStates.Invulnerable))
+                    return (other.Kind == TeamKind.Players && !other.Self.States.HasFlag(EntityStates.Invulnerable))
                            || other.Kind == TeamKind.Guards
                            || other.Kind == TeamKind.Provocation;
 
@@ -40,13 +40,13 @@ namespace Server
                            || other.Kind == TeamKind.Monsters
                            || other.Kind == TeamKind.Provocation
                            || (other.Kind == TeamKind.Players && (other.Self != Self && (IsDuelZoneEnemy(other) || IsPlayerEnemy(other))))
-                           || (other.Kind == TeamKind.Guards && Self.States.HasFlag((int)EntityStates.NegativeKarma));
+                           || (other.Kind == TeamKind.Guards && Self.States.HasFlag(EntityStates.NegativeKarma));
 
                 case TeamKind.Tower:
                     return true;
 
                 case TeamKind.Guards:
-                    return (other.Kind == TeamKind.Players && Self.States.HasFlag((int)EntityStates.NegativeKarma))
+                    return (other.Kind == TeamKind.Players && Self.States.HasFlag(EntityStates.NegativeKarma))
                            || other.Kind == TeamKind.Monsters;
 
                 case TeamKind.Provocation:
@@ -56,10 +56,10 @@ namespace Server
                            || other.Kind == TeamKind.Players;
 
                 case TeamKind.Team1:
-                    return other.Kind == TeamKind.Team2 && !other.Self.States.HasFlag((int)EntityStates.Invulnerable);
+                    return other.Kind == TeamKind.Team2 && !other.Self.States.HasFlag(EntityStates.Invulnerable);
 
                 case TeamKind.Team2:
-                    return other.Kind == TeamKind.Team1 && !other.Self.States.HasFlag((int)EntityStates.Invulnerable);
+                    return other.Kind == TeamKind.Team1 && !other.Self.States.HasFlag(EntityStates.Invulnerable);
 
                 default:
                     return false;
@@ -81,7 +81,7 @@ namespace Server
                            || (other.Self.TeamOwner == Self.TeamOwner && other.Self.TeamOwner != null && Self.TeamOwner != null);
 
                 case TeamKind.Guards:
-                    return other.Kind != TeamKind.Players || !Self.States.HasFlag((int)EntityStates.NegativeKarma);
+                    return other.Kind != TeamKind.Players || !Self.States.HasFlag(EntityStates.NegativeKarma);
 
                 case TeamKind.Provocation:
                     return false;
@@ -105,17 +105,17 @@ namespace Server
 
         private bool IsDuelZoneEnemy(Team pt)
         {
-            return Self.States.HasFlag((int)EntityStates.DuelZone)
-                   && pt.Self.States.HasFlag((int)EntityStates.DuelZone)
-                   && !pt.Self.States.HasFlag((int)EntityStates.Invulnerable)
+            return Self.States.HasFlag(EntityStates.DuelZone)
+                   && pt.Self.States.HasFlag(EntityStates.DuelZone)
+                   && !pt.Self.States.HasFlag(EntityStates.Invulnerable)
                    && Self.TeamOwner != pt.Self.TeamOwner;
         }
 
         private bool IsPlayerEnemy(Team pt)
         {
-            return !pt.Self.States.HasFlag((int)EntityStates.Invulnerable)
-                   && !pt.Self.States.HasFlag((int)EntityStates.SafeZone)
-                   && !Self.States.HasFlag((int)EntityStates.SafeZone)
+            return !pt.Self.States.HasFlag(EntityStates.Invulnerable)
+                   && !pt.Self.States.HasFlag(EntityStates.SafeZone)
+                   && !Self.States.HasFlag(EntityStates.SafeZone)
                    && Self.TeamOwner != pt.Self.TeamOwner;
         }
     }

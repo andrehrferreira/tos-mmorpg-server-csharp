@@ -30,13 +30,12 @@ namespace Server.Packets
 
             socket.Send(pongBuffer);
 
-            /*if (socket is { character: { Map: { } map }, entityId: { } entityId })
+            if (socket.Character != null && socket.Character.Map != "")
             {
-                var mapInstance = Maps.GetMap(map);
-                var entity = mapInstance.FindEntityById(entityId);
-
+                var mapInstance = Maps.GetMap(socket.Character.Map);
+                var entity = mapInstance.FindEntityById(socket.EntityId);
                 entity?.UpdateLastInteract();
-            }*/
+            }
         }
     }
 }

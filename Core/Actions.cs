@@ -63,7 +63,7 @@ namespace Server
         public abstract int Cost { get; }
 
         public ActionType Type { get; set; } = ActionType.None;
-        public Dices? Damage { get; set; } = Dices.None;
+        public Dices Damage { get; set; } = Dices.None;
         public DamageType DamageType { get; set; } = DamageType.Physic;
         public SkillName Skill { get; set; } = SkillName.None;
         public int? SkillRequeriment { get; set; } = 0;

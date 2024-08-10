@@ -1,4 +1,4 @@
-﻿namespace Server.Core.Engine
+﻿namespace Server
 {
     public enum ConditionType
     {

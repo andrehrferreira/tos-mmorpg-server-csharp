@@ -32,6 +32,7 @@
   <ItemGroup>
     <Folder Include="Gameplay\Items\" />
     <Folder Include="Gameplay\Spells\" />
+    <Folder Include="Data\" />
   </ItemGroup>
 
 </Project>

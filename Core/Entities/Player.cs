@@ -94,8 +94,9 @@
 
         }
 
-        public void SaveToDatabase()
+        public Task SaveToDatabase()
         {
+            return Task.CompletedTask;
 
         }
 

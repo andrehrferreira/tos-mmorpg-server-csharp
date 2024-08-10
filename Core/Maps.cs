@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -32,6 +33,67 @@ namespace Server
             ID = id;
             Name = name;
             GetRespawns();
+        }
+
+        public static int ParseLevelData(string levelName, string dataFile)
+        {
+            var map = Maps.GetOrCreateMap(levelName);
+
+            if (!string.IsNullOrEmpty(dataFile))
+            {
+                var parts = dataFile.Split('@');
+                var indexItems = parts[0].Split('|');
+                var dataItems = parts[1].Split('|');
+                var indexArr = new Dictionary<int, string>();
+                int totalSpots = 0;
+
+                foreach (var indexData in indexItems)
+                {
+                    var splitData = indexData.Split(':');
+                    int id = int.Parse(splitData[0]);
+                    string mesh = splitData[1];
+                    indexArr[id] = mesh;
+                }
+
+                map.FoliageIndex = indexArr;
+
+                foreach (var dataPart in dataItems)
+                {
+                    var splitData = dataPart.Split(',');
+                    int meshIndex = int.Parse(splitData[0]);
+                    int type = int.Parse(splitData[1]);
+                    int x = int.Parse(splitData[2]);
+                    int y = int.Parse(splitData[3]);
+                    int z = int.Parse(splitData[4]);
+
+                    string foliageId = $"{x}{y}{z}";
+                    totalSpots++;
+
+                    var gatherable = new Gatherable
+                    {
+                        Map = levelName,
+                        RespawnOnStart = true,
+                        Timeout = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                        Timer = 120,
+                        Entities = new List<GatherableType> { (GatherableType)type },
+                        X = x,
+                        Y = y,
+                        Z = z,
+                        MeshIndex = meshIndex,
+                        FoliageId = foliageId
+                    };
+
+                    map.Foliage[foliageId] = gatherable;
+                    map.Foliage[meshIndex.ToString()] = gatherable;
+                }
+
+                map.RefreshMapInitialData();
+                return totalSpots;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public static Maps? GetMap(string name)
@@ -194,14 +256,133 @@ namespace Server
             }
         }
 
+        //Respawn
+
+        public async Task GetRespawnsAsync()
+        {
+            if (MapsService != null)
+            {
+                var respawns = await MapsService.GetRespawnsAsync(Namespace);
+
+                foreach (var respawn in respawns)
+                {
+                    var entities = JsonConvert.DeserializeObject<List<string>>(respawn.Entities);
+                    var baseEntity = Entity.GetEntityBase(entities[0]);
+
+                    if (baseEntity != null)
+                    {
+                        var tmpEntity = (Entity)Activator.CreateInstance(baseEntity);
+
+                        Respawns[respawn.Id] = new Respawn(respawn.Id, new RespawnOptions
+                        {
+                            Map = respawn.Map,
+                            RespawnOnStart = respawn.RespawnOnStart,
+                            Timeout = respawn.Timeout,
+                            Timer = (tmpEntity is Boss) ? 86400 : 300,
+                            X = respawn.X,
+                            Y = respawn.Y,
+                            Z = respawn.Z,
+                            Entities = entities
+                        });
+                    }
+                }
+            }
+        }
+
+        public async Task CreateRespawnAsync(Vector3 position, string entityNameOrNames)
+        {
+            if (MapsService != null)
+            {
+                var tmpId = GUID.NewID();
+                var entityNames = entityNameOrNames is string ? new List<string> { entityNameOrNames } : (List<string>)entityNameOrNames;
+                var baseEntity = Entity.GetEntityBase(entityNames[0]);
+
+                if (baseEntity != null)
+                {
+                    var tmpEntity = (Entity)Activator.CreateInstance(baseEntity);
+
+                    await MapsService.CreateRespawnAsync(new RespawnData
+                    {
+                        Id = tmpId,
+                        Map = Namespace,
+                        RespawnOnStart = true,
+                        Timeout = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        Timer = (tmpEntity is Boss) ? 86400 : 300,
+                        X = position.X,
+                        Y = position.Y,
+                        Z = position.Z,
+                        Entities = JsonConvert.SerializeObject(entityNames)
+                    });
+
+                    Respawns[tmpId] = new Respawn(tmpId, new RespawnOptions
+                    {
+                        Map = Namespace,
+                        RespawnOnStart = true,
+                        Timeout = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        Timer = (tmpEntity is Boss) ? 86400 : 300,
+                        X = position.X,
+                        Y = position.Y,
+                        Z = position.Z,
+                        Entities = entityNames
+                    });
+                }
+            }
+        }
+
+        public async Task RemoveRespawnAsync(string id)
+        {
+            if (Respawns.ContainsKey(id))
+            {
+                var respawn = Respawns[id];
+
+                respawn.Destroy();
+
+                await MapsService.RemoveRespawnAsync(id);
+
+                respawn.EntityRespawned?.Destroy();
+
+                Respawns.Remove(id);
+            }
+        }
+
+        //Foliage
+
+        //Tick
+
+        //Entities
+
+        public void CreateOrUpdateEntity(Entity entity)
+        {
+            bool hasEntity = EntitiesIndexById.ContainsKey(entity.Id);
+
+            if (!hasEntity)
+            {
+                string currentId = GUID.IntToId(MapIndex++);
+                EntitiesIndexById[entity.Id] = entity;
+                EntitiesMapIndex[currentId] = entity;
+            }
+            else
+            {
+                EntitiesIndexById[entity.Id] = entity;
+                EntitiesMapIndex[entity.MapIndex] = entity;
+            }
+        }
+
+        public void RemoveEntity(Entity entity)
+        {
+            EntitiesIndexById.Remove(entity.Id);
+            EntitiesMapIndex.Remove(entity.MapIndex);
+
+            foreach (var other in entity.AreaOfInterest)
+            {
+                if (other.Socket != null)                
+                    Packet.Get(ServerPacketType.RemoveEntity)?.Send(other, entity);                
+            }
+        }
+
         public Entity FindEntityById(string entityId)
         {
             return (EntitiesIndexById.TryGetValue(entityId, out var entity)) ? entity : null;
-        }
-
-        public void GetRespawns()
-        {
-
         }
     }
 }

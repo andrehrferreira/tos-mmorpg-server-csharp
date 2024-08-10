@@ -1,7 +1,5 @@
 ﻿using System.Reactive.Subjects;
 using Newtonsoft.Json;
-using Server.Core.Engine;
-using Server.Packets;
 
 namespace Server
 {
@@ -94,7 +92,7 @@ namespace Server
         public int SkinnerTick { get; set; } = 0;
         public int SkinnerAmount { get; set; } = 3;
         public int SkinnerGainExp { get; set; } = 1;
-        public int DieTimeout { get; set; }
+        public long DieTimeout { get; set; }
 
         //Stats
         public int StatsPoints { get; set; } = 0;
@@ -195,8 +193,7 @@ namespace Server
         public bool HasHeavyEquipamentPart { get; set; } = false;
 
         //Timers
-        Timer RegenStatsTimer;
-        Timer UpdateTimer;
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public static readonly List<SkillLevelExperience> LevelsExperience = new List<SkillLevelExperience>
         {
@@ -222,13 +219,31 @@ namespace Server
             Loot = new Loot(this);
             Inventory = new Container(this);
 
-            RegenStatsTimer = new Timer(3000);
-            RegenStatsTimer.Elapsed += (sender, e) => RegenStats();
-            RegenStatsTimer.Start();
+            Task.Run(async () => await RegenStatsLoop(_cancellationTokenSource.Token));
+            Task.Run(async () => await UpdateLoop(_cancellationTokenSource.Token));
+        }
 
-            UpdateTimer = new Timer(1000);
-            UpdateTimer.Elapsed += (sender, e) => Update();
-            UpdateTimer.Start();
+        private async Task RegenStatsLoop(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                RegenStats();
+                await Task.Delay(3000, token); 
+            }
+        }
+
+        private async Task UpdateLoop(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                Update();
+                await Task.Delay(1000, token); 
+            }
+        }
+
+        public void StopTimers()
+        {
+            _cancellationTokenSource.Cancel(); 
         }
 
         public static object GetEntityBase(string reference)
@@ -282,9 +297,6 @@ namespace Server
 
                 if (!IsDead)
                 {
-                    // Area of Interest updates can be handled here
-                    // e.g., packetUpdateEntity.Send(this, entity, false);
-
                     if (Conditions.Count > 0)
                     {
                         for (int i = Conditions.Count - 1; i >= 0; i--)
@@ -326,7 +338,7 @@ namespace Server
                     if ((SkinnerTick == 0 && Loot != null && Loot.Count() <= 0 && DieTimeout < DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()) ||
                         DieTimeout < DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())
                     {
-                        foreach (var entity in AreaOfInterece)
+                        foreach (var entity in AreaOfInterest)
                         {
                             // e.g., packetDissolveEntity.Send(this, entity);
                         }
@@ -371,11 +383,11 @@ namespace Server
             Removed = true;
             Map?.RemoveEntity(this);
             Map = null;
-            RemoveEntityFromGame(this); 
             Conditions.Clear();
             OnDestroy.OnNext(this);
             OnDestroy.OnCompleted(); 
             QueueBuffer.RemoveSocket(MapIndex);
+            StopTimers();
         }
 
         // Network
@@ -386,7 +398,7 @@ namespace Server
 
         public void Broadcast(Packet packet, object data = null)
         {
-            var entities = new HashSet<Entity>(AreaOfInterece) { this };
+            var entities = new HashSet<Entity>(AreaOfInterest) { this };
 
             foreach (var entity in entities)            
                 packet.Send(this, entity, data);
@@ -949,5 +961,731 @@ namespace Server
 
             return JsonConvert.SerializeObject(new { data = skillsParsed });
         }
+
+        //Actionbar
+        public void setAction(string action, string itemRef, int index) {}
+
+        public void clearAction(int index) {}
+
+        //Target
+        public void SelectTarget(string targetName, Entity target)
+        {
+            Target = targetName;
+            BindTargetActor(target);
+
+            foreach (var entity in AreaOfInterest)            
+                Packet.Get(ServerPacketType.SelectTarget).Send(this, entity, targetName);            
+        }
+
+        public void BindTargetActor(Entity target)
+        {
+            if (TargetActor != null)
+                RemoveTargetActor();
+
+            TargetActor = target;
+
+            TargetOnDie = TargetActor.OnDie.Subscribe(entity =>
+            {
+                TargetActor = null;
+                Target = null;
+                TargetOnDie?.Dispose();
+                TargetOnDie = null;
+            });
+
+            TargetOnDestroy = TargetActor.OnDestroy.Subscribe(entity =>
+            {
+                TargetActor = null;
+                Target = null;
+                TargetOnDestroy?.Dispose();
+                TargetOnDestroy = null;
+            });
+        }
+
+        public void CancelTarget()
+        {
+            Target = null;
+            TargetActor = null;
+            RemoveTargetActor();
+
+            foreach (var entity in AreaOfInterest)  
+                Packet.Get(ServerPacketType.CancelTarget).Send(this, entity);
+        }
+
+        public void RemoveTargetActor()
+        {
+            if (TargetActor != null && TargetOnDie != null)
+            {
+                TargetOnDie?.Dispose();
+                TargetOnDie = null;
+                TargetActor = null;
+            }
+        }
+
+        //Damage
+        public int RollDice(Dices dice)
+        {
+            if (dice == Dices.None) return 0;
+
+            var match = System.Text.RegularExpressions.Regex.Match(dice.ToString(), @"(\d+)D(\d+)");
+
+            if (!match.Success) return 0;
+
+            int numDices = int.Parse(match.Groups[1].Value);
+            int numSides = int.Parse(match.Groups[2].Value);
+
+            int total = 0;
+
+            var random = new Random();
+
+            for (int i = 0; i < numDices; i++)            
+                total += random.Next(1, numSides + 1);            
+
+            return total;
+        }
+
+        protected bool ValidateHit(ICheckHitAutoAttack data, Entity actor)
+        {
+            var checkHitData = new CheckHit
+            {
+                EntityId = data.EntityId,
+                ActorId = data.ActorId,
+                X = data.X,
+                Y = data.Y,
+                Z = data.Z,
+                Action = -1
+            };
+
+            return ValidateHit(checkHitData, actor);
+        }
+
+        protected bool ValidateHit(ICheckHit data, Entity actor)
+        {
+            try
+            {
+                var distance = actor.Transform.Position.DistanceTo(this.Transform.Position);
+                var distanceHitToEntity = actor.Transform.Position.DistanceTo(
+                    new Vector3(data.X, data.Y, data.Z));
+
+                if (data.EntityId == data.ActorId)
+                    throw new Exception("Invalid damage self");
+
+                if (actor == null)
+                    throw new Exception($"Entity {data.ActorId} does not exist");
+
+                if (actor.HasState(EntityStates.Dead))
+                    throw new Exception($"The {data.ActorId} target is dead");
+
+                //if (distance > 10000)
+                //    throw new Exception("The attacked entity is very far from the caster");
+
+                //if (distanceHitToEntity > 2000)
+                //    throw new Exception("The reported hit is too far from the target");
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public void CheckHit(ICheckHit data)
+        {
+            try
+            {
+                var action = Actions.FindActionById(data.Action);
+                var actor = this.Map.FindEntityById(data.ActorId);
+
+                if (actor == null)
+                    throw new Exception("Invalid actor");
+
+                if (!ValidateHit(data, actor))
+                    throw new Exception("Invalid data hit");
+
+                if (action == null)
+                    throw new Exception("Invalid action");
+
+                actor.TakeDamage(this, action.Damage, action.DamageType, 0, action);
+
+                CheckElementalDamage(actor);
+            }
+            catch (Exception)
+            {
+                // Handle exceptions if necessary
+            }
+        }
+
+        public void CheckHitAutoAttack(ICheckHitAutoAttack data)
+        {
+            try
+            {
+                var actor = this.Map.FindEntityById(data.ActorId);
+
+                if (actor == null)
+                    throw new Exception("Invalid actor");
+
+                if (!ValidateHit(data, actor))
+                    throw new Exception("Invalid data hit");
+
+                actor.TakeDamage(this, Dices.D1D4, DamageType.Physic, 0, null, false, true);
+
+                CheckElementalDamage(actor);
+            }
+            catch (Exception)
+            {
+                // Handle exceptions if necessary
+            }
+        }
+
+        public int GetMods(SkillName skill, WeaponType weaponAmplify = WeaponType.None)
+        {
+            var skillMod = GetSkillBonus(skill);
+            var weaponMod = (GetWeaponType() == weaponAmplify) ? GetWeaponBaseDamage() : 0;
+            return skillMod + weaponMod;
+        }
+
+        public int CalculateDamage(Dices damage, BaseAction action = null)
+        {
+            return (action != null) ? action.GetEffectValue(this) : RollDice(damage);
+        }
+
+        public WeaponType GetActionWeaponAmplify(BaseAction action)
+        {
+            return action.WeaponAmplify;
+        }
+
+        public virtual int GetWeaponBaseDamage() { return 0; }
+
+        public virtual WeaponType GetWeaponType() { return WeaponType.None; }
+
+        public int AmplifyDamage(int damageBase, int resistence)
+        {
+            int bonusDamage = 0;
+
+            if (resistence < 0)
+            {
+                var plusDamage = (damageBase * -resistence) / 100;
+
+                if (plusDamage > 0)
+                    bonusDamage = plusDamage;
+            }
+
+            return (bonusDamage > 0) ? bonusDamage : 0;
+        }
+
+        public int CalculateResistence(int damage, DamageType damageType)
+        {
+            int reductDamageEquips = (damage * DamageReduction) / 100;
+
+            if (reductDamageEquips > 0)
+                damage -= reductDamageEquips;
+
+            // Resistências
+            switch (damageType)
+            {
+                case DamageType.Physic:
+                    int physicalResistence = PhysicalResistance + BonusPhysicalResistance;
+                    if (physicalResistence > 0)
+                    {
+                        int reductDamage = (damage * physicalResistence) / 100;
+                        if (reductDamage > 0)
+                            damage -= reductDamage;
+                    }
+                    else
+                    {
+                        damage += AmplifyDamage(damage, physicalResistence);
+                    }
+                    break;
+
+                case DamageType.Fire:
+                    int fireResistence = FireResistance + BonusFireResistance;
+                    if (fireResistence > 0)
+                    {
+                        int reductDamageFire = (damage * fireResistence) / 100;
+                        if (reductDamageFire > 0)
+                            damage -= reductDamageFire;
+                    }
+                    else
+                    {
+                        damage += AmplifyDamage(damage, fireResistence);
+                    }
+                    break;
+
+                case DamageType.Cold:
+                    int coldResistence = ColdResistance + BonusColdResistance;
+                    if (coldResistence > 0)
+                    {
+                        int reductDamageCold = (damage * coldResistence) / 100;
+                        if (reductDamageCold > 0)
+                            damage -= reductDamageCold;
+                    }
+                    else
+                    {
+                        damage += AmplifyDamage(damage, coldResistence);
+                    }
+                    break;
+
+                case DamageType.Poison:
+                    int poisonResistence = PoisonResistance + BonusPoisonResistance;
+                    if (poisonResistence > 0)
+                    {
+                        int reductDamagePoison = (damage * poisonResistence) / 100;
+                        if (reductDamagePoison > 0)
+                            damage -= reductDamagePoison;
+                    }
+                    else
+                    {
+                        damage += AmplifyDamage(damage, poisonResistence);
+                    }
+                    break;
+
+                case DamageType.Energy:
+                    int energyResistence = EnergyResistance + BonusEnergyResistance;
+                    if (energyResistence > 0)
+                    {
+                        int reductDamageEnergy = (damage * energyResistence) / 100;
+                        if (reductDamageEnergy > 0)
+                            damage -= reductDamageEnergy;
+                    }
+                    else
+                    {
+                        damage += AmplifyDamage(damage, energyResistence);
+                    }
+                    break;
+
+                case DamageType.Light:
+                    int lightResistence = LightResistance + BonusLightResistance;
+                    if (lightResistence > 0)
+                    {
+                        int reductDamageLight = (damage * lightResistence) / 100;
+                        if (reductDamageLight > 0)
+                            damage -= reductDamageLight;
+                    }
+                    else
+                    {
+                        damage += AmplifyDamage(damage, lightResistence);
+                    }
+                    break;
+
+                case DamageType.Dark:
+                    int darkResistence = DarkResistance + BonusDarkResistance;
+                    if (darkResistence > 0)
+                    {
+                        int reductDamageDark = (damage * darkResistence) / 100;
+                        if (reductDamageDark > 0)
+                            damage -= reductDamageDark;
+                    }
+                    else
+                    {
+                        damage += AmplifyDamage(damage, darkResistence);
+                    }
+                    break;
+            }
+
+            return damage;
+        }
+
+        public int CheckBuffEffect(Entity causer, int damage, DamageType damageType)
+        {
+            if (BuffDebuffs.Count > 0)
+            {
+                foreach (var buffsDebuff in BuffDebuffs)                
+                    damage = buffsDebuff.Action.EffectOnTakeDamage(this, causer, damage, damageType);                
+            }
+
+            if (causer.BuffDebuffs.Count > 0)
+            {
+                foreach (var buffsDebuff in causer.BuffDebuffs)                
+                    damage = buffsDebuff.Action.EffectOnHit(causer, this, damage, damageType);
+                
+            }
+
+            return damage;
+        }
+
+        public void CheckElementalDamage(Entity actor)
+        {
+            if (actor.FireDamage > 0)
+                TakeElementalDamage(actor, DamageType.Fire, actor.FireDamage);
+
+            if (actor.ColdDamage > 0)
+                TakeElementalDamage(actor, DamageType.Cold, actor.ColdDamage);
+
+            if (actor.PoisonDamage > 0)
+                TakeElementalDamage(actor, DamageType.Poison, actor.PoisonDamage);
+
+            if (actor.EnergyDamage > 0)
+                TakeElementalDamage(actor, DamageType.Energy, actor.EnergyDamage);
+
+            if (actor.LightDamage > 0)
+                TakeElementalDamage(actor, DamageType.Light, actor.LightDamage);
+
+            if (actor.DarkDamage > 0)
+                TakeElementalDamage(actor, DamageType.Dark, actor.DarkDamage);
+        }
+
+        public void TakeElementalDamage(Entity actor, DamageType type, int damage)
+        {
+            actor.TakeDamage(this, Dices.D1D4, type, RandomHelper.MinMaxInt(Math.Max(1, damage / 2), damage));
+        }
+
+        public int BonusDamageMod(StatusType type)
+        {
+            switch (type)
+            {
+                case StatusType.Str: return ReturnModStatus(Str);
+                case StatusType.Dex: return ReturnModStatus(Dex);
+                case StatusType.Int: return ReturnModStatus(Int);
+                case StatusType.Vig: return ReturnModStatus(Vig);
+                case StatusType.Agi: return ReturnModStatus(Agi);
+                case StatusType.Luc: return ReturnModStatus(Luc);
+            }
+
+            return 0;
+        }
+
+        public int ReturnModStatus(int value)
+        {
+            return (int)Math.Max(Math.Round(value / 10.0), 0);
+        }
+
+        public void TakeDamage(
+            Entity causer,
+            Dices dice,
+            DamageType damageType,
+            int bonusDamage = 0,
+            BaseAction action = null,
+            bool ignoreBuffEffect = false,
+            bool autoattack = false
+        )
+        {
+            var entities = new HashSet<Entity>(AreaOfInterest) { causer, this };
+
+            if (!IsDead && causer.Transform.Position.DistanceTo(Transform.Position) > 5000)
+            {
+                foreach (var entity in entities)                
+                    Packet.Get(ServerPacketType.TakeMiss).Send(this, entity);
+                
+                if (Target == null)
+                {
+                    Target = causer.MapIndex;
+                    BindTargetActor(causer);
+                    SelectTarget(causer.MapIndex, causer);
+                }
+            }
+            else if (!IsDead && causer.Team.IsEnemyOf(Team))
+            {
+                int bonusDamageEquips = (damageType == DamageType.Physic) ? BonusPhysicalDamage : BonusMagicDamage;
+                int damage = causer.CalculateDamage(dice, action) + bonusDamage + bonusDamageEquips;
+                damage += (RandomHelper.MinMaxInt(1, 100) < CriticalChance) ? Math.Min(CriticalDamage, damage) : 0;
+
+                if (damageType == DamageType.Physic)
+                {
+                    if (GetWeaponType() == WeaponType.Bow || GetWeaponType() == WeaponType.Crossbow)                    
+                        damage += causer.BonusDamageMod(StatusType.Dex);                    
+                    else                    
+                        damage += causer.BonusDamageMod(StatusType.Str);
+                }
+                else
+                {
+                    damage += causer.BonusDamageMod(StatusType.Int);
+                }
+
+                damage = CalculateResistence(damage, damageType);
+
+                if (!ignoreBuffEffect)
+                    damage = CheckBuffEffect(causer, damage, damageType);
+
+                if (action != null && !ignoreBuffEffect)
+                    damage = action.EffectOnTakeDamage(this, causer, damage, damageType);
+
+                if (States.HasFlag(EntityStates.Invulnerable))
+                    damage = 0;
+
+                if (autoattack)
+                    damage = (int)Math.Round(damage / 2.0);
+
+                bool dodge = (RandomHelper.MinMaxInt(1, 100) < DodgeChance);
+
+                if (Target == null)
+                {
+                    Target = causer.MapIndex;
+                    BindTargetActor(causer);
+                    SelectTarget(causer.MapIndex, causer);
+                }
+
+                if (damage >= 1 && !dodge)
+                {
+                    if (DamageReduction > 0)
+                    {
+                        double dmFactor = DamageReduction / 100.0;
+                        double dmReduct = Math.Abs(Math.Max(damage * dmFactor, 1));
+
+                        if (dmReduct > 0)
+                            damage -= (int)dmReduct;
+                    }
+
+                    Life -= damage;
+
+                    if (action != null && action.Skill != SkillName.None)
+                        causer.GainSkillExperience(action.Skill);
+
+                    if (States.HasFlag(EntityStates.Stunned) && damageType == DamageType.Physic)
+                        States.RemoveFlag(EntityStates.Stunned);
+
+                    if (Life <= 0)
+                    {
+                        foreach (var entity in entities)
+                        {
+                            Packet.Get(ServerPacketType.TakeDamage).Send(this, entity, new
+                            {
+                                damage,
+                                damageType,
+                                causer
+                            });
+                        }
+
+                        Die(causer);
+                    }
+                    else
+                    {
+                        if (damageType != DamageType.Physic)
+                        {
+                            this.GainSkillExperience(SkillName.MagicResistence, 1);
+
+                            int magicDamageReflect = (int)Math.Round(damage * (ReflectionMagicDamage / 100.0));
+
+                            if (magicDamageReflect > 0)
+                                causer.TakeDamage(this, Dices.D1D4, damageType, magicDamageReflect);
+                        }
+                        else
+                        {
+                            int physicalDamageReflect = (int)Math.Round(damage * (ReflectionPhysicalDamage / 100.0));
+
+                            if (physicalDamageReflect > 0)
+                                causer.TakeDamage(this, Dices.D1D4, DamageType.Physic, physicalDamageReflect);
+                        }
+
+                        if (!DamageCauser.ContainsKey(causer.MapIndex))
+                            DamageCauser[causer.MapIndex] = damage;
+                        else
+                            DamageCauser[causer.MapIndex] += damage;
+
+                        if (causer is Player player)
+                        {
+                            if (player.GetWeaponType() != WeaponType.None)
+                                player.GainSkillExperienceByWeapon(player.GetWeaponType());
+                        }
+
+                        foreach (var entity in entities)
+                        {
+                            Packet.Get(ServerPacketType.TakeDamage).Send(this, entity, new
+                            {
+                                damage,
+                                damageType,
+                                causer
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var entity in entities)                    
+                        Packet.Get(ServerPacketType.TakeMiss).Send(this, entity);
+                }
+            }
+        }
+
+        public void Die(Entity causer)
+        {
+            IsDead = true;
+            DieTimeout = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + (60 * 10 * 1000);
+            States.AddFlag(EntityStates.Dead);
+            States.RemoveFlag(EntityStates.Poisoned);
+            States.RemoveFlag(EntityStates.Stunned);
+            States.RemoveFlag(EntityStates.Frenzy);
+            States.RemoveFlag(EntityStates.Burning);
+            States.RemoveFlag(EntityStates.Frozen);
+            Conditions.Clear();
+            BuffDebuffs.Clear();
+            OnDie?.OnNext(this);
+
+            var entities = new HashSet<Entity>(AreaOfInterest) { causer, this };
+
+            foreach (var entity in entities)
+            {
+                if (entity != null)
+                    Packet.Get(ServerPacketType.Die).Send(this, entity);
+            }
+
+            if (causer != null && Socket != null)
+                Packet.Get(ServerPacketType.SystemMessage).Send(this, $"You were killed by a {causer.Name} attack");
+
+            if (DestroyOnDie)
+            {
+                Packet.Get(ServerPacketType.Dissolve).Send(this, causer);
+
+                foreach (var otherEntity in entities)                
+                    Packet.Get(ServerPacketType.Dissolve).Send(this, otherEntity);
+                
+                Destroy();
+            }
+        }
+
+        public void Revive()
+        {
+            IsDead = false;
+            Life = MaxLife;
+            States.RemoveFlag(EntityStates.Dead);
+            States.RemoveFlag(EntityStates.Poisoned);
+            States.RemoveFlag(EntityStates.Stunned);
+            States.RemoveFlag(EntityStates.Frenzy);
+            States.RemoveFlag(EntityStates.Burning);
+            States.RemoveFlag(EntityStates.Frozen);
+            Conditions = new List<Condition>();
+            BuffDebuffs = new List<BuffDebuff>();
+
+            if (this is Player player)
+            {
+                player.Save();
+                player.SaveToDatabase();
+            }
+
+            Packet.Get(ServerPacketType.SyncEvent).Send(this, EventType.Revive);
+        }
+
+        public void Heal(Entity caster, int value)
+        {
+            if (caster.Team.IsAllyOf(this.Team) || this is Player)
+            {
+                Life = Math.Max(1, Math.Min(Life + value, MaxLife));
+                var entities = new HashSet<Entity>(AreaOfInterest) { caster, this };
+
+                foreach (var entity in entities)
+                {
+                    Packet.Get(ServerPacketType.Heal).Send(this, entity, new
+                    {
+                        value,
+                        caster,
+                        type = HealType.Life
+                    });
+                }
+            }
+        }
+
+        public void HealBroadcast(Entity caster, int value, HealType type = HealType.Life)
+        {
+            var entities = new HashSet<Entity>(AreaOfInterest) { caster, this };
+
+            foreach (var entity in entities)
+            {
+                Packet.Get(ServerPacketType.Heal).Send(this, entity, new
+                {
+                    value,
+                    caster,
+                    type
+                });
+            }
+        }
+
+        //Conditions
+        public void ApplyCondition(Condition c)
+        {
+            if (!IsDead)
+            {
+                foreach (var condition in Conditions)
+                {
+                    if (condition.Type == c.Type)
+                    {
+                        // condition.Refresh(this, c.Dealer, c.Lifetime, c.Value);
+                        // OnConditionChanged.OnNext(condition);
+                        return;
+                    }
+                }
+
+                Conditions.Add(c);
+                Conditions.Last().Apply(this);
+            }
+        }
+
+        public bool HasCondition(ConditionType conditionType)
+        {
+            foreach (var condition in Conditions)
+            {
+                if (conditionType == condition.Type)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public void RemoveCondition(int index)
+        {
+            if (index >= 0 && index < Conditions.Count)
+            {
+                Conditions[index].Remove(this);
+                Conditions[index] = null;
+                Conditions = Conditions.Where(v => v != null).ToList();
+            }
+        }
+
+        // Buffs and Debuffs
+        public void ApplyBuffDebuff(BuffDebuff c)
+        {
+            if (!IsDead)
+            {
+                foreach (var buffsDebuff in BuffDebuffs)
+                {
+                    if (buffsDebuff.Type == c.Type)
+                    {
+                        buffsDebuff.Refresh(this, c.Lifetime);
+                        OnBuffDebuffChanged.OnNext(buffsDebuff);
+                        return;
+                    }
+                }
+
+                c.Action.EffectOnCast(this);
+                BuffDebuffs.Add(c);
+                BuffDebuffs.Last().Apply(this);
+            }
+        }
+
+        public bool HasBuffDebuff(BuffDebuffStates type)
+        {
+            return BuffsDebuffsState.HasFlag(type);
+        }
+
+        public void RemoveBuffDebuff(int index)
+        {
+            if (index >= 0 && index < BuffDebuffs.Count)
+            {
+                BuffDebuffs[index].Action.RemoveEffect(this);
+                BuffDebuffs[index].Remove(this);
+                BuffDebuffs[index] = null;
+                BuffDebuffs = BuffDebuffs.Where(v => v != null).ToList();
+            }
+        }
+
+        //Packets
+        public void SendInfo(Entity entity)
+        {
+            Packet.Get(ServerPacketType.CreateEntity)?.Send(entity, this);
+        }
+
+        public void Say(string message, string color = "255,255,255,255")
+        {
+            var entities = new HashSet<Entity>(AreaOfInterest) { this };
+
+            foreach (var entity in entities)
+            {
+                Packet.Get(ServerPacketType.Say)?.Send(entity, new
+                {
+                    speaker = this,
+                    message = message,
+                    color = color
+                });
+            }
+        }
+
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Server.Repository
+namespace Server
 {
     public abstract class BaseEntity
     {
