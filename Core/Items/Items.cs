@@ -1,4 +1,4 @@
-﻿
+
 using Newtonsoft.Json;
 
 namespace Server
@@ -48,7 +48,8 @@ namespace Server
 
                 if (props != null)
                 {
-                    Console.WriteLine($"{item.Name}: {item.Ref}");
+                    //Console.WriteLine($"{item.Name}: {item.Ref}");
+
                     foreach (var key in props.Keys)
                     {
                         if (key != "Attr" && key != "Cards" && key != "Flags" && props[key].ToString() != "[object Object]")

@@ -1,5 +1,6 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Net;
+using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
 
@@ -25,31 +26,51 @@ namespace Server
 
         public async Task StartAsync()
         {
-            HttpListener listener = new();
-            listener.Prefixes.Add($"http://*:{Port}/");
-            listener.Start();
+            HttpListener listener = new HttpListener();
 
-            Console.WriteLine($"WebSocket server is running on ws://localhost:{Port}");
+            if (listener.IsListening)
+                throw new InvalidOperationException("Server is currently running.");
 
-            while (true)
+            listener.Prefixes.Clear();
+            listener.Prefixes.Add($"http://localhost:{Port}/");
+
+            try
             {
-                try
-                {
-                    var context = await listener.GetContextAsync();
+                listener.Start();
 
-                    if (context.Request.IsWebSocketRequest)
+                Console.WriteLine($"WebSocket server is running on ws://localhost:{Port}");
+
+                while (true)
+                {
+                    try
                     {
-                        _ = HandleWebSocketAsync(context);
+                        var context = await listener.GetContextAsync();
+
+                        if (context.Request.IsWebSocketRequest)
+                        {
+                            _ = HandleWebSocketAsync(context);
+                        }
+                        else
+                        {
+                            context.Response.StatusCode = 400;
+                            context.Response.Close();
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        context.Response.StatusCode = 400;
-                        context.Response.Close();
+                        Console.WriteLine($"Listener error: {ex.Message}");
                     }
                 }
-                catch (Exception ex)
+            }
+            catch (HttpListenerException ex)
+            {
+                if (ex.Message.Contains("Access is denied"))
                 {
-                    Console.WriteLine($"Listener error: {ex.Message}");
+                    return;
+                }
+                else
+                {
+                    throw;
                 }
             }
         }

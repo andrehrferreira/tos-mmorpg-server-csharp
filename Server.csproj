@@ -75,4 +75,12 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="G:\ToS3\Server\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="G:\ToS3\Server\.editorconfig" />
+  </ItemGroup>
+
 </Project>
