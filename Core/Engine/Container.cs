@@ -224,7 +224,7 @@ namespace Server
             return false;
         }
 
-        public async Task<bool> ChangeAmount(int slotId, int amount)
+        /*public async Task<bool> ChangeAmount(int slotId, int amount)
         {
             if (Slots.ContainsKey(slotId))
             {
@@ -279,7 +279,7 @@ namespace Server
             {
                 return false;
             }
-        }
+        }*/
 
 
         public int Count()
@@ -334,7 +334,7 @@ namespace Server
                 }
             }
 
-            container.LoadFromModel(itemsParsed);
+            //container.LoadFromModel(itemsParsed);
             ContainerDictionary[data.containerId] = container;
         }
 

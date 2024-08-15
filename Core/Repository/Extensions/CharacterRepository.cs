@@ -6,15 +6,14 @@ namespace Server
     {
         public static async Task<int> GetCharacterCount(string accountId)
         {
-            return await Context.Set<CharacterEntity>()
-                                .CountAsync(c => c.AccountId == accountId);
+            return await Context.Characters.CountAsync(c => c.AccountId == accountId);
         }
 
         public static async Task<List<CharacterEntity>> GetAllCharacters()
         {
             try
             {
-                return await Context.Set<CharacterEntity>().ToListAsync();
+                return await Context.Characters.ToListAsync();
             }
             catch
             {
@@ -26,7 +25,7 @@ namespace Server
         {
             try
             {
-                return await Context.Set<CharacterEntity>()
+                return await Context.Characters
                                     .Where(c => c.AccountId == accountId)
                                     .Select(c => new CharacterEntity
                                     {
@@ -57,17 +56,8 @@ namespace Server
         {
             try
             {
-                IQueryable<CharacterEntity> query = Context.Set<CharacterEntity>()
-                                                           .Where(c => c.AccountId == accountId && c.Id == characterId);
-
-                if (fields != "*")
-                {
-                    var selectFields = fields.Split(',').Select(f => f.Trim()).ToList();
-                    query = query.Select(c => new CharacterEntity
-                    {
-                        Id = c.Id
-                    });
-                }
+                IQueryable<CharacterEntity> query = Context
+                    .Characters.Where(c => c.AccountId == accountId && c.Id == characterId);
 
                 var character = await query.FirstOrDefaultAsync();
 
@@ -91,7 +81,7 @@ namespace Server
             try
             {
                 data.Skills = data.Skills ?? "{}";
-                Context.Set<CharacterEntity>().Add(data);
+                Context.Characters.Add(data);
                 await Context.SaveChangesAsync();
                 return true;
             }
@@ -105,7 +95,7 @@ namespace Server
         {
             try
             {
-                var character = await Context.Set<CharacterEntity>().FindAsync(id);
+                var character = await Context.Characters.FindAsync(id);
 
                 if (character == null)
                     throw new Exception("Character not found.");
@@ -124,10 +114,10 @@ namespace Server
         {
             try
             {
-                var character = await Context.Set<CharacterEntity>().FindAsync(id);
+                var character = await Context.Characters.FindAsync(id);
                 if (character != null)
                 {
-                    Context.Set<CharacterEntity>().Remove(character);
+                    Context.Characters.Remove(character);
                     await Context.SaveChangesAsync();
                     return true;
                 }

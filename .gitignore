@@ -18,9 +18,7 @@ x86/
 *.csproj.user
 .vscode/
 .vs
-
-# Uncomment if you have tasks that create the project's static files in wwwroot
-#wwwroot/
+bin
 
 # Rider
 .idea/
@@ -32,3 +30,5 @@ x86/
 *.suo
 *.user
 *.userosscache
+
+database.sqlite

@@ -4,11 +4,11 @@ namespace Server
 {
     public static partial class Repository
     {
-        public static async Task<bool> CreateItemAsync(ItemEntity data)
+        public static async Task<bool> CreateItem(ItemEntity data)
         {
             try
             {
-                Context.Set<ItemEntity>().Add(data);
+                Context.Items.Add(data);
                 await Context.SaveChangesAsync();
                 return true;
             }
@@ -18,21 +18,21 @@ namespace Server
             }
         }
 
-        public static async Task<ItemEntity> GetItemAsync(string refId)
+        public static async Task<ItemEntity> GetItem(string refId)
         {
-            return await Context.Set<ItemEntity>().FindAsync(refId);
+            return await Context.Items.FindAsync(refId);
         }
 
-        public static async Task<List<ItemEntity>> GetItemsAsync()
+        public static async Task<List<ItemEntity>> GetItems()
         {
-            return await Context.Set<ItemEntity>().ToListAsync();
+            return await Context.Items.ToListAsync();
         }
 
-        public static async Task<bool> UpdateItemAsync(string refId, ItemEntity data)
+        public static async Task<bool> UpdateItem(string refId, ItemEntity data)
         {
             try
             {
-                var item = await Context.Set<ItemEntity>().FindAsync(refId);
+                var item = await Context.Items.FindAsync(refId);
 
                 if (item != null)
                 {
@@ -46,14 +46,15 @@ namespace Server
             return false;
         }
 
-        public static async Task<bool> DeleteItemAsync(string refId)
+        public static async Task<bool> DeleteItem(string refId)
         {
             try
             {
-                var item = await Context.Set<ItemEntity>().FindAsync(refId);
+                var item = await Context.Items.FindAsync(refId);
+
                 if (item != null)
                 {
-                    Context.Set<ItemEntity>().Remove(item);
+                    Context.Items.Remove(item);
                     await Context.SaveChangesAsync();
                     return true;
                 }

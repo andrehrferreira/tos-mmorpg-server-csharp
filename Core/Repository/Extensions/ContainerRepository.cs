@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Server
 {
@@ -10,12 +8,12 @@ namespace Server
         {
             try
             {
-                var containerExists = await Context.Set<ContainerEntity>()
+                var containerExists = await Context.Containers
                     .FirstOrDefaultAsync(c => c.ContainerId == data.ContainerId && c.CharacterId == data.CharacterId);
 
                 if (containerExists == null)
                 {
-                    Context.Set<ContainerEntity>().Add(data);
+                    Context.Containers.Add(data);
                     await Context.SaveChangesAsync();
                     return true;
                 }
@@ -27,12 +25,12 @@ namespace Server
 
         public static async Task<List<ContainerEntity>> GetContainers()
         {
-            return await Context.Set<ContainerEntity>().ToListAsync();
+            return await Context.Containers.ToListAsync();
         }
 
         public static async Task<ContainerEntity> GetContainer(string containerId, string characterId)
         {
-            return await Context.Set<ContainerEntity>()
+            return await Context.Containers
                 .FirstOrDefaultAsync(c => c.ContainerId == containerId && c.CharacterId == characterId);
         }
 
@@ -40,7 +38,7 @@ namespace Server
         {
             try
             {
-                var container = await Context.Set<ContainerEntity>()
+                var container = await Context.Containers
                     .FirstOrDefaultAsync(c => c.ContainerId == data.ContainerId);
 
                 if (container != null)
@@ -75,12 +73,12 @@ namespace Server
         {
             try
             {
-                var container = await Context.Set<ContainerEntity>()
+                var container = await Context.Containers
                     .FirstOrDefaultAsync(c => c.ContainerId == containerId);
 
                 if (container != null)
                 {
-                    Context.Set<ContainerEntity>().Remove(container);
+                    Context.Containers.Remove(container);
                     await Context.SaveChangesAsync();
                     return true;
                 }

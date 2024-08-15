@@ -4,10 +4,13 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        //await CharacterService.
-        await MapsService.LoadAll();
+        //Load Base
+        Items.Init();
 
-        //WebSocketServer server = new WebSocketServer();
-        //await server.StartAsync();
+        //await Repository.MapsLoadAll();
+        await Repository.ItemsLoadAll();
+
+        WebSocketServer server = new WebSocketServer();
+        await server.StartAsync();
     }
 }

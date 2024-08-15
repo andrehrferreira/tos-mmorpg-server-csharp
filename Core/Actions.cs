@@ -130,7 +130,7 @@ namespace Server
         {
             List<Entity> enemies = new List<Entity>();
 
-            foreach (var entity in caster.AreaOfInterece)
+            foreach (var entity in caster.AreaOfInterest)
             {
                 if (entity.Team.IsEnemyOf(caster.Team) &&
                     position.DistanceBetween(entity.Transform.Position) <= radius &&
@@ -147,7 +147,7 @@ namespace Server
         {
             List<Entity> allies = new List<Entity>();
 
-            foreach (var entity in caster.AreaOfInterece)
+            foreach (var entity in caster.AreaOfInterest)
             {
                 if (entity.Team.IsAllyOf(caster.Team) &&
                     position.DistanceBetween(entity.Transform.Position) <= radius &&
@@ -190,8 +190,8 @@ namespace Server
 
         public int GetEffectValue(Entity owner)
         {
-            int mods = GetMods(owner, Skill.Value, WeaponAmplify);
-            int skillValue = owner.GetSkillValue(Skill.Value);
+            int mods = GetMods(owner, Skill, WeaponAmplify);
+            int skillValue = owner.GetSkillValue(Skill);
             Dices effectDice = Damage;
 
             if (DamagePerLevel.TryGetValue(skillValue, out var dice))
@@ -227,8 +227,8 @@ namespace Server
             if (target is Entity entity)
             {
                 GainSkillExperience(owner);
-                int modInt = owner.GetBonusDamageMod(StatusType.Int);
-                entity.Heal(owner, Math.Round(GetEffectValue(owner) + modInt));
+                //int modInt = owner.GetBonusDamageMod(StatusType.Int);
+                //entity.Heal(owner, GetEffectValue(owner) + modInt);
             }
         }
     }
@@ -239,8 +239,8 @@ namespace Server
 
         public void CreateSummon(Player owner, Summon creature, Vector3 position)
         {
-            creature.Transform.Position = position;
-            creature.StartLifeTime(Lifetime);
+            creature.Transform.SetPosition(position);
+            //creature.StartLifeTime(Lifetime);
             owner.Map.JoinMap(creature);
         }
     }

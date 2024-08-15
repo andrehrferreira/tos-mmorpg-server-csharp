@@ -6,6 +6,6 @@
     float Z { get; set; }
     int Timer { get; set; }
     bool RespawnOnStart { get; set; }
-    int Timeout { get; set; }
+    long Timeout { get; set; }
     List<string> Entities { get; set; }
 }

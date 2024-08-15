@@ -101,7 +101,7 @@
         {
             if (Tick <= 0)
             {
-                PacketFinishCollect.Send(player, Settings.FoliageId);
+                Packet.Get(ServerPacketType.FinishCollect).Send(player, Settings.FoliageId);
                 player.GatherableInteract = null;
             }
 
@@ -190,22 +190,22 @@
                         if (amount < 1 || itemBase.Item == typeof(Gemstone))
                             amount = 1;
 
-                        var baseItem = Activator.CreateInstance(itemBase.Item) as ItemBase;
-                        bool hasStackableItem = player.Inventory.HasStackableItem(baseItem);
+                        var baseItem = Activator.CreateInstance(itemBase.Item) as Item;
+                        int hasStackableItem = player.Inventory.HasStackableItem(baseItem);
                         Tick--;
 
-                        var itemRef = await player.Socket.Services.ItemsService.CreateItem(
+                        /*var itemRef = await player.Socket.Services.ItemsService.CreateItem(
                             player.Inventory.ContainerId,
                             player.CharacterId,
                             baseItem.Namespace,
                             amount,
                             "collect",
-                            hasStackableItem == -1
-                        );
+                            (hasStackableItem == -1)
+                        );*/
 
-                        PacketUpdateTick.Send(player, FoliageId, Tick);
-                        PacketSystemMessage.SendDirectSocket(player.Socket, $"You received +{amount}x {baseItem.Name.Trim()}");
-                        player.Inventory.AddItem(itemRef, amount);
+                        Packet.Get(ServerPacketType.UpdateTick).Send(player, FoliageId, Tick);
+                        Packet.Get(ServerPacketType.SystemMessage).Send(player, $"You received +{amount}x {baseItem.Name.Trim()}");
+                        //player.Inventory.AddItem(itemRef, amount);
                     }
 
                     if (!withoutEquipament)
@@ -218,13 +218,13 @@
                         switch (EquipamentNeed)
                         {
                             case EquipmentType.AxeTool:
-                                Items.ReduceDurability(player.AxeTool.ItemRef, player);
+                                Items.ReduceDurability(player.Axetool.ItemRef, player);
                                 break;
                             case EquipmentType.PickaxeTool:
-                                Items.ReduceDurability(player.PickaxeTool.ItemRef, player);
+                                Items.ReduceDurability(player.Pickaxetool.ItemRef, player);
                                 break;
                             case EquipmentType.ScytheTool:
-                                Items.ReduceDurability(player.ScytheTool.ItemRef, player);
+                                Items.ReduceDurability(player.Scythetool.ItemRef, player);
                                 break;
                         }
                     }
@@ -233,25 +233,25 @@
 
                     if (Tick <= 0)
                     {
-                        PacketFinishCollect.Send(player, Settings.FoliageId);
+                        Packet.Get(ServerPacketType.FinishCollect).Send(player, Settings.FoliageId);
 
                         foreach (var entity in Map.EntitiesMapIndex.Values)
                         {
                             if (entity is Player)
-                                PacketFinishCollect.Send((Player)entity, Settings.FoliageId);
+                                Packet.Get(ServerPacketType.FinishCollect).Send((Player)entity, Settings.FoliageId);
                         }
                     }
                 }
             }
             else
             {
-                PacketFinishCollect.Send(player, Settings.FoliageId);
-                PacketSystemMessage.SendDirectSocket(player.Socket, "The resource has been exhausted and can no longer be collected");
+                Packet.Get(ServerPacketType.FinishCollect).Send(player, Settings.FoliageId);
+                Packet.Get(ServerPacketType.SystemMessage).Send(player, "The resource has been exhausted and can no longer be collected");
 
                 foreach (var entity in Map.EntitiesMapIndex.Values)
                 {
                     if (entity is Player)
-                        PacketFinishCollect.Send((Player)entity, Settings.FoliageId);
+                        Packet.Get(ServerPacketType.FinishCollect).Send((Player)entity, Settings.FoliageId);
                 }
             }
         }

@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
@@ -16,7 +15,7 @@ namespace Server
         private readonly byte[] MsgBuffer;
         private readonly ArraySegment<byte> Segment;
 
-        public WebSocketServer(int port = 3000)
+        public WebSocketServer(int port = 6588)
         {
             Port = port;
             MsgBuffer = Encoding.UTF8.GetBytes(ReadyMessage);

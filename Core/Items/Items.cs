@@ -1,11 +1,21 @@
 ﻿
+using Newtonsoft.Json;
+
 namespace Server
 {
-
     public class Items
     {
         public static Dictionary<string, Type> BaseItems { get; private set; } = new Dictionary<string, Type>();
         public static Dictionary<string, Item> CachedItems { get; private set; } = new Dictionary<string, Item>();
+
+        public static void Init()
+        {
+            foreach (Type t in Namespaces.GetTypesInNamespace("Server.Gameplay.Items"))
+            {
+                if (Activator.CreateInstance(t) is Item item)
+                    AddBaseItem(item.Namespace, t);
+            }
+        }
 
         public static void AddBaseItem(string[] refs, Type clas)
         {
@@ -38,6 +48,7 @@ namespace Server
 
                 if (props != null)
                 {
+                    Console.WriteLine($"{item.Name}: {item.Ref}");
                     foreach (var key in props.Keys)
                     {
                         if (key != "Attr" && key != "Cards" && key != "Flags" && props[key].ToString() != "[object Object]")
@@ -48,10 +59,19 @@ namespace Server
                         }
                     }
 
-                    if (props.ContainsKey("Attr") && props["Attr"] is List<AttributeType> attrs && item is Equipament equip)
+                    if (props.ContainsKey("Attr") && props["Attr"] is List<object> attrs && item is Equipament equip)
                     {
-                        foreach (var attr in attrs)
-                            equip.Attrs.Add(attr.Type, attr.Value);
+                        foreach (var attrObj in attrs)
+                        {
+                            if (attrObj is Dictionary<string, object> attrDict &&
+                                attrDict.ContainsKey("type") &&
+                                attrDict.ContainsKey("value"))
+                            {
+                                var type = (AttributeType)Convert.ToInt32(attrDict["type"]);
+                                var value = Convert.ToInt32(attrDict["value"]);
+                                equip.Attrs.Add(type, value);
+                            }
+                        }
                     }
 
                     if (props.ContainsKey("Cards") && props["Cards"] is List<string> cards && item is Equipament equipCards)
@@ -118,15 +138,20 @@ namespace Server
             return item;
         }
 
-        public static Item ItemFromDatabase(Dictionary<string, object> data)
+        public static Item ItemFromDatabase(ItemEntity data)
         {
             try
             {
-                var itemName = data["itemName"] as string ?? data["ItemName"] as string;
-                var amount = (int)(data["amount"] ?? data["Amount"]);
-                var refId = data["id"] as string ?? data["ItemRef"] as string ?? data["itemRef"] as string;
-                var props = data["props"] as Dictionary<string, object> ?? data["Props"] as Dictionary<string, object>;
-                var containerId = data["containerId"] as string;
+                var itemName = data.ItemName;
+                var amount = data.Amount;
+                var refId = data.Id;
+                Dictionary<string, object> props = null;
+                var containerId = data.ContainerId;
+
+                if (data.Props is string jsonProps)
+                {
+                    props = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonProps);
+                }
 
                 var item = LoadFromDatabase(itemName, refId, props);
 
@@ -185,12 +210,12 @@ namespace Server
 
                     var props = equipament.Serialize();
 
-                    await owner.Socket.Services.GameServerQueue.Add("update", new Dictionary<string, object>
+                    /*await owner.Socket.Services.GameServerQueue.Add("update", new Dictionary<string, object>
                     {
                         { "table", "item" },
                         { "id", item.Ref },
                         { "set", new Dictionary<string, object> { { "props", props } } }
-                    });
+                    });*/
 
                     CachedItems[refId] = equipament;
                     Packet.Get(ServerPacketType.Tooltip).Send(owner, item.Ref, props);

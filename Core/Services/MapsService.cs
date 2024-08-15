@@ -1,24 +1,9 @@
 ﻿
 namespace Server
 {
-    public static class MapsService
+    public static partial class Repository
     {
-        public static async Task<List<RespawnEntity>> GetRespawns(string map)
-        {
-            return await Repository.GetRespawnsAsync(map);
-        }
-
-        public static async Task<bool> CreateRespawn(RespawnEntity data)
-        {
-            return await Repository.CreateRespawnAsync(data);
-        }
-
-        public static async Task<bool> RemoveRespawn(string id)
-        {
-            return await Repository.RemoveRespawnAsync(id);
-        }
-
-        public static async Task LoadAll()
+        public static async Task MapsLoadAll()
         {
             Console.WriteLine("Loading Maps Data...");
 

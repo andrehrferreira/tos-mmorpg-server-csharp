@@ -8,7 +8,7 @@ namespace Server
         {
             try
             {
-                Context.Set<RespawnEntity>().Add(data);
+                Context.Respawns.Add(data);
                 await Context.SaveChangesAsync();
                 return true;
             }
@@ -20,17 +20,18 @@ namespace Server
 
         public static async Task<List<RespawnEntity>> GetRespawns(string map)
         {
-            return await Context.Set<RespawnEntity>().Where(r => r.Map == map).ToListAsync();
+            return await Context.Respawns.Where(r => r.Map == map).ToListAsync();
         }
 
         public static async Task<bool> RemoveRespawn(string id)
         {
             try
             {
-                var respawn = await Context.Set<RespawnEntity>().FindAsync(id);
+                var respawn = await Context.Respawns.FindAsync(id);
+
                 if (respawn != null)
                 {
-                    Context.Set<RespawnEntity>().Remove(respawn);
+                    Context.Respawns.Remove(respawn);
                     await Context.SaveChangesAsync();
                     return true;
                 }

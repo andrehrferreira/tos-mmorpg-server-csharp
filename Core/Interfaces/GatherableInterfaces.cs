@@ -10,6 +10,6 @@ public interface IGatherable
     bool RespawnOnStart { get; set; }
     long Timeout { get; set; } // Usando long para representar timestamps
     List<GatherableType> Entities { get; set; }
-    string MeshIndex { get; set; }
+    int MeshIndex { get; set; }
     string FoliageId { get; set; }
 }

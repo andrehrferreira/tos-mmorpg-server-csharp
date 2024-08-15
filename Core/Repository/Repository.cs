@@ -1,5 +1,4 @@
-﻿
-namespace Server
+﻿namespace Server
 {
     public static partial class Repository
     {

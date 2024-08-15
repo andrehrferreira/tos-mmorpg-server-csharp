@@ -6,7 +6,7 @@ namespace Server
     {
         public static async Task<List<GuildEntity>> GetGuildsAsync()
         {
-            return await Context.Set<GuildEntity>().ToListAsync();
+            return await Context.Guilds.ToListAsync();
         }
 
         public static async Task<bool> CreateGuildAsync(string guildId, GuildEntity data)
@@ -21,7 +21,7 @@ namespace Server
                     // Outros campos que possam existir no GuildEntity
                 };
 
-                Context.Set<GuildEntity>().Add(guild);
+                Context.Guilds.Add(guild);
                 await Context.SaveChangesAsync();
                 return true;
             }
@@ -35,7 +35,7 @@ namespace Server
         {
             try
             {
-                var guild = await Context.Set<GuildEntity>()
+                var guild = await Context.Guilds
                     .FirstOrDefaultAsync(g => g.Id == data.Id);
 
                 if (guild != null)

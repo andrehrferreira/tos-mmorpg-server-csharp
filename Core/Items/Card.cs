@@ -2,20 +2,20 @@
 {
     public abstract class Card : Item
     {
-        public int Attack { get; set; }
-        public int HP { get; set; }
-        public int Energy { get; set; }
+        public virtual int Attack { get; set; }
+        public virtual int HP { get; set; }
+        public virtual int Energy { get; set; }
 
         // Resistences
-        public int Armor { get; set; } = 0;
-        public int FireResistence { get; set; } = 0;
-        public int ColdResistence { get; set; } = 0;
-        public int PoisonResistence { get; set; } = 0;
-        public int EnergyResistence { get; set; } = 0;
-        public int LightResistence { get; set; } = 0;
-        public int DarkResistence { get; set; } = 0;
+        public virtual int Armor { get; set; } = 0;
+        public virtual int FireResistence { get; set; } = 0;
+        public virtual int ColdResistence { get; set; } = 0;
+        public virtual int PoisonResistence { get; set; } = 0;
+        public virtual int EnergyResistence { get; set; } = 0;
+        public virtual int LightResistence { get; set; } = 0;
+        public virtual int DarkResistence { get; set; } = 0;
 
-        public Dictionary<AttributeType, int> Attrs { get; set; } = new Dictionary<AttributeType, int>();
+        public virtual Dictionary<AttributeType, int> Attrs { get; set; } = new Dictionary<AttributeType, int>();
 
         public void SetArmor(int min, int max = 0)
         {

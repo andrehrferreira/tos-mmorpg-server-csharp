@@ -64,7 +64,7 @@
             return null;
         }
 
-        public static Player? GetPlayer(string characterId)
+        public static Player GetPlayer(string characterId)
         {
             foreach (var player in Players.Values)
             {

@@ -45,10 +45,10 @@ namespace Server
 
         public static void Send(ServerPacketType type, Socket socket, object data = null)
         {
-            if (PacketsServer.TryGetValue(type, out var packet))
-            {
+            var packet = Get(type);
+
+            if (packet != null)            
                 packet.SendBuffer(socket, new ByteBuffer().PutByte((byte)(int)type).PutString(Newtonsoft.Json.JsonConvert.SerializeObject(data)));
-            }
         }
     }
 

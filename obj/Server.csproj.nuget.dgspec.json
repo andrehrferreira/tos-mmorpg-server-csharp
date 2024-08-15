@@ -97,6 +97,10 @@
               "target": "Package",
               "version": "[2.28.0, )"
             },
+            "NLog": {
+              "target": "Package",
+              "version": "[5.3.3, )"
+            },
             "System.Collections.Concurrent": {
               "target": "Package",
               "version": "[4.3.0, )"

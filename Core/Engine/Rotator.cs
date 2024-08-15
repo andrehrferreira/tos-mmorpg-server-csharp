@@ -14,10 +14,7 @@ namespace Server
             Yaw = yaw;
         }
 
-        public static Rotator Zero()
-        {
-            return new Rotator(0, 0, 0);
-        }
+        public static Rotator Zero => new Rotator(0, 0, 0);
 
         private float ToRadians(float degrees)
         {
