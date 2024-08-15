@@ -1,4 +1,4 @@
-﻿using System.Reactive.Subjects;
+using System.Reactive.Subjects;
 using Newtonsoft.Json;
 
 namespace Server
@@ -72,6 +72,40 @@ namespace Server
             }
         }
 
+        public void LoadFromModel(List<dynamic> parsedData)
+        {
+            if (parsedData == null || parsedData.Count == 0) return;
+
+            try
+            {
+                foreach (var itemData in parsedData)
+                {
+                    int slotId = -1;
+
+                    if (itemData != null &&
+                        itemData.ContainsKey("SlotId") &&
+                        int.TryParse(itemData["SlotId"].ToString(), out slotId) &&
+                        slotId >= 0)
+                    {
+                        if (itemData.ContainsKey("ItemRef"))
+                        {
+                            var item = Items.GetItemByRef(itemData["ItemRef"].ToString());
+
+                            if (item != null)
+                            {
+                                Slots[slotId] = item;
+                                ItemIndex[item.Ref] = new SlotRef(slotId, item);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro durante o processamento dos itens: {ex.Message}");
+            }
+        }
+
         public Container ChangeOwner(Entity newOwner)
         {
             Owner = newOwner;
@@ -119,6 +153,124 @@ namespace Server
                 {
                     if (slot.Value.Namespace == namespaceName)
                         return slot.Key;
+                }
+            }
+
+            return -1;
+        }
+
+        public async Task<int> AddItem(string refId, int amount = 1, int slotId = -1, bool showHint = true)
+        {
+            if (!string.IsNullOrEmpty(ContainerId))
+            {
+                var item = Items.GetItemByRef(refId);
+
+                if (item != null)
+                {
+                    var stackableItemSlotId = HasStackableItem(item);
+                    var observers = new HashSet<Entity>(Observers) { Owner };
+
+                    item.ContainerId = ContainerId;
+
+                    if (stackableItemSlotId < 0)
+                    {
+                        slotId = slotId > -1 ? slotId : GetEmptySlot();
+
+                        if (amount <= 0)
+                        {
+                            amount = 1;
+                            slotId = -1;
+                        }
+
+                        if (slotId > -1)
+                        {
+                            ItemIndex[refId] = new SlotRef(slotId, item);
+                            Slots[slotId] = item;
+                            Items.SetItem(refId, item);
+
+                            if (Owner != null)
+                            {
+                                if (item is Equipament)
+                                    Packet.Get(ServerPacketType.Tooltip)?.Send(Owner as Player, refId, item.Serialize());
+
+                                if (Owner.Socket != null)
+                                {
+                                    await Queue.EnqueueUpdateJobAsync(new JobData()
+                                    {
+                                        Table = "item",
+                                        Id = refId,
+                                        Set = new { slotId, containerId = ContainerId }
+                                    });
+                                }
+
+                                foreach (var observer in observers)
+                                {
+                                    Packet.Get(ServerPacketType.AddItemContainer)?.Send(observer, new
+                                    {
+                                        containerId = ContainerId,
+                                        slotId,
+                                        itemRef = refId,
+                                        itemName = item.Namespace,
+                                        amount,
+                                        itemRarity = item.Rarity,
+                                        goldCost = item.GoldCost,
+                                        weight = item.Weight
+                                    }, showHint);
+
+                                    if (item is Equipament || item is PowerScroll || item is PetItem || item is MountItem)
+                                        Packet.Get(ServerPacketType.Tooltip)?.Send(observer as Player, refId, item.Serialize());
+                                }
+
+                                OnChange.OnNext(this);
+                            }
+
+                            Owner.Save();
+                            return slotId;
+                        }
+                    }
+                    else
+                    {
+                        var itemInSlot = Slots[stackableItemSlotId];
+                        itemInSlot.Amount += amount;
+
+                        ItemIndex[itemInSlot.Ref] = new SlotRef(stackableItemSlotId, itemInSlot);
+                        Slots[stackableItemSlotId] = itemInSlot;
+                        Items.SetItem(itemInSlot.Ref, itemInSlot);
+
+                        if (Owner != null)
+                        {
+                            if (Owner.Socket != null)
+                            {
+                                await Queue.EnqueueUpdateJobAsync(new JobData()
+                                {
+                                    Table = "item",
+                                    Id = itemInSlot.Ref,
+                                    Set = new { amount = itemInSlot.Amount }
+                                });
+
+                                await Queue.EnqueueDeleteJobAsync(new JobData()
+                                {
+                                    Table = "item",
+                                    Id = refId
+                                });
+                            }
+
+                            foreach (var observer in observers)
+                            {
+                                Packet.Get(ServerPacketType.ChangeAmountItemContainer)?.Send(observer, new
+                                {
+                                    containerId = ContainerId,
+                                    slotId = stackableItemSlotId,
+                                    amount = itemInSlot.Amount
+                                });
+                            }
+
+                            OnChange.OnNext(this);
+                        }
+                                                
+                        Owner.Save();
+                        return stackableItemSlotId;
+                    }
                 }
             }
 
@@ -224,7 +376,7 @@ namespace Server
             return false;
         }
 
-        /*public async Task<bool> ChangeAmount(int slotId, int amount)
+        public async Task<bool> ChangeAmount(int slotId, int amount)
         {
             if (Slots.ContainsKey(slotId))
             {
@@ -239,11 +391,11 @@ namespace Server
 
                     if (Owner != null && Owner.Socket != null)
                     {
-                        await Owner.Socket.Services.GameServerQueue.Add("update", new
+                        await Queue.EnqueueUpdateJobAsync(new JobData()
                         {
-                            table = "item",
-                            id = item.Ref,
-                            set = new { amount }
+                            Table = "item",
+                            Id = item.Ref,
+                            Set = new { amount }
                         });
 
                         foreach (var observer in observers)
@@ -279,8 +431,270 @@ namespace Server
             {
                 return false;
             }
-        }*/
+        }
 
+        public async Task<bool> RemoveItem(string refId)
+        {
+            if (ItemIndex.ContainsKey(refId))
+            {
+                var observers = new HashSet<Entity>(Observers) { Owner };
+                var slotRef = ItemIndex[refId];
+
+                ItemIndex.Remove(refId);
+                Slots.Remove(slotRef.SlotId);
+                Items.RemoveItem(slotRef.Item.Ref);
+
+                if (Owner != null)
+                {
+                    if (Owner.Socket != null)
+                    {
+                        await Queue.EnqueueUpdateJobAsync(new JobData()
+                        {
+                            Table = "item",
+                            Id = slotRef.Item.Ref,
+                            Set = new { deleted = true, deletedAt = DateTime.UtcNow }
+                        });
+                    }
+
+                    foreach (var observer in observers)
+                    {
+                        Packet.Get(ServerPacketType.RemoveItemContainer)?.Send(observer, new
+                        {
+                            containerId = ContainerId,
+                            itemRef = slotRef.Item.Ref,
+                            slotId = slotRef.SlotId
+                        });
+                    }
+
+                    OnChange.OnNext(this);
+                }
+
+                await Save();
+
+                if (Owner is Player player)
+                {
+                    player.Save();
+                    await player.SaveToDatabase();
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<bool> MoveItem(int from, int to)
+        {
+            if (Slots.TryGetValue(from, out var slotFrom))
+            {
+                var slotToExists = Slots.TryGetValue(to, out var slotTo);
+
+                if (slotToExists)
+                {
+                    ItemIndex[slotTo.Ref] = new SlotRef(from, slotTo);
+                    Slots[from] = slotTo;
+
+                    if (Owner != null && Owner.Socket != null)
+                    {
+                        await Queue.EnqueueUpdateJobAsync(new JobData()
+                        {
+                            Table = "item",
+                            Id = slotTo.Ref,
+                            Set = new { slotId = from, containerId = ContainerId }
+                        });
+                    }
+                }
+
+                ItemIndex[slotFrom.Ref] = new SlotRef(to, slotFrom);
+                Slots[to] = slotFrom;
+
+                if (Owner != null && Owner.Socket != null)
+                {
+                    await Queue.EnqueueUpdateJobAsync(new JobData()
+                    {
+                        Table = "item",
+                        Id = slotFrom.Ref,
+                        Set = new { slotId = to, containerId = ContainerId }
+
+                    });
+                }
+
+                if (!slotToExists)
+                {
+                    ItemIndex.Remove(slotFrom.Ref);
+                    Slots.Remove(from);
+                }
+
+                await Save();
+
+                if (Owner is Player player)
+                {
+                    player.Save();
+                    await player.SaveToDatabase();
+                }
+
+                OnChange.OnNext(this);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task ChangeContainer(
+            int currentSlotId,
+            Container containerTo,
+            int newSlotId,
+            int amount = 1
+        )
+        {
+            var currentItem = GetSlot(currentSlotId);
+
+            if (currentItem != null)
+            {
+                bool totalItem = currentItem.Amount == amount;
+                bool hasItem = containerTo.HasItemBySlotId(newSlotId);
+
+                if (!totalItem)
+                {
+                    if (Owner.Socket != null)
+                    {
+                        int newAmount = currentItem.Amount - amount;
+
+                        if (newAmount > 0)
+                        {
+                            var itemRef = await Repository.CreateItem(
+                                containerTo.ContainerId,
+                                containerTo.Owner.CharacterId,
+                                currentItem.Namespace,
+                                amount,
+                                "split",
+                                null,
+                                currentItem.Serialize()
+                            );
+
+                            if (currentItem is Equipament)
+                                Packet.Get(ServerPacketType.Tooltip)?.Send(Owner as Player, itemRef, currentItem.Serialize());
+
+                            await ChangeAmount(currentSlotId, newAmount);
+                            await containerTo.AddItem(itemRef, amount);
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    var observers = new HashSet<Entity>(Observers) { Owner };
+                    int slotId = hasItem ? containerTo.GetEmptySlot() : newSlotId;
+                                    
+                    string itemRef = await Repository.CreateItem(
+                        ContainerId,
+                        Owner.CharacterId,
+                        currentItem.Namespace,
+                        amount,
+                        "split",
+                        null,
+                        currentItem.Serialize()
+                    );
+
+                    if (currentItem is Equipament)
+                        Packet.Get(ServerPacketType.Tooltip)?.Send(Owner as Player, itemRef, currentItem.Serialize());
+
+                    int realSlotAlloc = await containerTo.AddItem(itemRef, amount, slotId);
+                    ClearSlot(currentSlotId);
+
+                    if (Owner != null && Owner.Socket != null)
+                    {
+                        await Queue.EnqueueDeleteJobAsync(new JobData()
+                        {
+                            Table = "item",
+                            Id = currentItem.Ref
+                        });
+
+                        if (realSlotAlloc == slotId)
+                        {
+                            foreach (var observer in observers)
+                            {
+                                Packet.Get(ServerPacketType.AddItemContainer)?.Send(observer, new
+                                {
+                                    containerId = containerTo.ContainerId,
+                                    slotId = slotId,
+                                    itemRef = currentItem.Ref,
+                                    itemName = currentItem.Namespace,
+                                    amount = amount,
+                                    itemRarity = currentItem.Rarity,
+                                    goldCost = currentItem.GoldCost,
+                                    weight = currentItem.Weight
+                                });
+
+                                if (currentItem is Equipament)
+                                    Packet.Get(ServerPacketType.Tooltip)?.Send(observer as Player, itemRef, currentItem.Serialize());
+                            }
+                        }
+                    }
+                }
+
+                OnChange.OnNext(this);
+                await Save();
+                await containerTo.Save();
+
+                if (Owner is Player player)
+                {
+                    player.Save();
+                    await player.SaveToDatabase();
+                }
+            }
+        }
+
+        public async Task Consume(int slotId)
+        {
+            var item = GetSlot(slotId);
+
+            if (item != null)
+            {
+                if ((item is Consumable || item is PowerScroll) && item.Amount > 0)
+                {
+                    if (item.Amount == 1)
+                    {
+                        if (item is Consumable consumable)
+                            await consumable.Use(Owner);
+                        else if (item is PowerScroll powerScroll)
+                            await powerScroll.Use(Owner as Player);
+
+                        ClearSlot(slotId);
+                    }
+                    else if (await ChangeAmount(slotId, item.Amount - 1))
+                    {
+                        if (item is Consumable consumable)
+                            await consumable.Use(Owner);
+                        else if (item is PowerScroll powerScroll)
+                            await powerScroll.Use(Owner as Player);
+                    }
+
+                    if (Owner is Player player)
+                    {
+                        player.Save();
+                        await player.SaveToDatabase();
+                    }
+                }
+            }
+        }
+
+        public async Task SendToInventory()
+        {
+            foreach (var itemEntry in ItemIndex.Values)
+            {
+                await ChangeContainer(
+                    itemEntry.SlotId,
+                    Owner.Inventory,
+                    -1, 
+                    itemEntry.Item.Amount
+                );
+            }
+        }
 
         public int Count()
         {
@@ -296,12 +710,98 @@ namespace Server
         {
             Observers = new List<Player>();
         }
+
+        public async Task Save()
+        {
+            if (Owner != null && Owner.Socket != null)
+            {
+                Owner.Save();
+
+                var containerParsed = SaveToModel();
+
+                await Queue.EnqueueUpdateJobAsync(new JobData()
+                {
+                    Table = "container",
+                    ContainerId = ContainerId,
+                    CharacterId = Owner.CharacterId,
+                    Set = !string.IsNullOrEmpty(containerParsed) ? containerParsed : "{}"
+                });
+            }
+        }
+
     }
+
+    public class LootRef
+    {
+        public int Chance { get; }
+        public int AmountMin { get; }
+        public int AmountMax { get; }
+
+        public LootRef(int chance, int amountMin, int amountMax)
+        {
+            Chance = chance;
+            AmountMin = amountMin;
+            AmountMax = amountMax;
+        }
+    }
+
 
     public class Loot: Container
     {
-        public Loot(Entity owner, string containerId = null): base(owner, containerId) 
-        { 
+        private readonly Dictionary<Type, LootRef> DropsPossibility = new Dictionary<Type, LootRef>();
+
+        public Loot(Entity owner, string containerId = null): base(owner, containerId) {}
+
+        public void DropChance(Type cls, int chance, int amountMin, int amountMax = 1)
+        {
+            if (cls != null)            
+                DropsPossibility[cls] = new LootRef(chance, amountMin, amountMax);
+        }
+
+        public async Task GenerateLoot(Player player)
+        {
+            if (player != null && player.Socket != null)
+            {
+                foreach (var kvp in DropsPossibility)
+                {
+                    var lootRef = kvp.Value;
+                    var itemType = kvp.Key;
+
+                    if (RandomHelper.DropChance(lootRef.Chance))
+                    {
+                        var baseItem = Items.CreateItemByClass(itemType);
+                        var amount = RandomHelper.MinMaxInt(lootRef.AmountMin, lootRef.AmountMax);
+
+                        var itemRef = await Repository.CreateItem(
+                            ContainerId,
+                            Owner.Id,
+                            baseItem.Namespace,
+                            amount,
+                            "loot",
+                            null,
+                            baseItem.Serialize()
+                        );
+
+                        if (baseItem is Equipament)                        
+                            Packet.Get(ServerPacketType.Tooltip).Send(player, itemRef, baseItem.Serialize());
+                        
+                        await AddItem(itemRef, amount);
+                        Containers.Set(ContainerId, this);
+                    }
+                }
+            }
+        }
+
+        public void SetBaseType(DefaultLootType type)
+        {
+            switch (type)
+            {
+                case DefaultLootType.Poor:
+                    //DropChance(typeof(GoldCoin), 100, 11, 20);
+                    //DropChance(LootPack.GetMagicItemsPoor(), 2, 1); // 0.02% chance convertido para 2%
+                    //DropChance(LootPack.GetInstruments(), 2, 1); // 0.02% chance convertido para 2%
+                break;
+            }
         }
     }
 
@@ -323,20 +823,18 @@ namespace Server
                     {
                         if (slotId != null && int.Parse(slotId) >= 0)
                         {
-                            items[slotId].slotId = int.Parse(slotId);
+                            items[slotId]["slotId"] = int.Parse(slotId);
                             itemsParsed.Add(items[slotId]);
                         }
                     }
-                    catch
-                    {
-                        // Handle exceptions if needed
-                    }
+                    catch {}
                 }
             }
 
-            //container.LoadFromModel(itemsParsed);
+            container.LoadFromModel(itemsParsed);
             ContainerDictionary[data.containerId] = container;
         }
+
 
         public static bool Has(string containerId)
         {

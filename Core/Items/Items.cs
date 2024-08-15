@@ -1,4 +1,3 @@
-
 using Newtonsoft.Json;
 
 namespace Server
@@ -149,11 +148,9 @@ namespace Server
                 Dictionary<string, object> props = null;
                 var containerId = data.ContainerId;
 
-                if (data.Props is string jsonProps)
-                {
+                if (data.Props is string jsonProps)                
                     props = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonProps);
-                }
-
+                
                 var item = LoadFromDatabase(itemName, refId, props);
 
                 if (item != null)
@@ -211,12 +208,12 @@ namespace Server
 
                     var props = equipament.Serialize();
 
-                    /*await owner.Socket.Services.GameServerQueue.Add("update", new Dictionary<string, object>
+                    await Queue.EnqueueUpdateJobAsync(new JobData()
                     {
-                        { "table", "item" },
-                        { "id", item.Ref },
-                        { "set", new Dictionary<string, object> { { "props", props } } }
-                    });*/
+                        Table = "item",
+                        Id = item.Ref,
+                        Set = new Dictionary<string, object> { { "props", props } }
+                    });
 
                     CachedItems[refId] = equipament;
                     Packet.Get(ServerPacketType.Tooltip).Send(owner, item.Ref, props);
@@ -225,7 +222,7 @@ namespace Server
         }
     }
 
-    public abstract class Item
+    public abstract class Item: IComparable<Item>
     {
         public static readonly List<AttributeType> AttrsEquipments = new List<AttributeType>
         {
@@ -281,6 +278,12 @@ namespace Server
         public virtual int GoldCost { get; set; } = 0;
         public virtual string CraftBy { get; set; }
         public Dictionary<string, string> CraftingInfo { get; set; } = new Dictionary<string, string>();
+
+
+        public int CompareTo(Item other)
+        {
+            return Ref.CompareTo(other.Ref);
+        }
 
         protected int GetRandomIntInRange(int min, int max)
         {
@@ -390,7 +393,7 @@ namespace Server
 
     public abstract class Consumable : Resource
     {
-        public virtual void Use(Entity entity) {}
+        public virtual async Task Use(Entity entity) { await Task.CompletedTask; }
 
         public void PlayAnimation(Entity owner, int index)
         {

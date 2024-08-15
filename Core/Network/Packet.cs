@@ -1,4 +1,4 @@
-﻿
+
 namespace Server
 {
     public class Packet
@@ -15,6 +15,17 @@ namespace Server
             }
         }
 
+        public static T Get<T>(ServerPacketType type) where T : Packet
+        {
+            if (Packets.TryGetValue(type, out var packet))
+            {
+                if (packet is T typedPacket)                
+                    return typedPacket;                
+            }
+
+            return null;
+        }
+
         public static Packet Get(ServerPacketType type)
         {
             return Packets.TryGetValue(type, out Packet packet) ? packet : null;
@@ -23,6 +34,19 @@ namespace Server
         public virtual object Data()
         {
             return null;
+        }
+
+        public virtual void Send(Socket socket, object data = null, object extra = null)
+        {
+            if (socket != null)
+            {
+                var buffer = new ByteBuffer()
+                    .PutByte((byte)(int)Type)
+                    .PutString(data != null ? Newtonsoft.Json.JsonConvert.SerializeObject(data) : "")
+                    .GetBuffer();
+
+                socket.Send(buffer);
+            }
         }
 
         public virtual void Send(Entity entity, object data = null, object extra = null)

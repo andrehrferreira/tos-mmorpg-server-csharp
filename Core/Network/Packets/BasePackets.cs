@@ -1,38 +1,38 @@
-﻿using Server;
+using Server;
 
 namespace Server.Packets
 {
-    public class PacketPong: PacketDirectSocket
+    public class PacketPongHandler : PacketDirectSocket
     {
         public override ServerPacketType Type => ServerPacketType.Pong;
     }
 
-    public class PacketLogin : PacketDirectSocket
+    public class PacketLoginHandler : PacketDirectSocket
     {
         public override ServerPacketType Type => ServerPacketType.LoginToken;
     }
 
-    public class PacketEnterToWorld : PacketDirectSocket
+    public class PacketEnterToWorldHandler : PacketDirectSocket
     {
         public override ServerPacketType Type => ServerPacketType.EnterToWorld;
     }
 
-    public class PacketGetServerList : PacketDirectSocket
+    public class PacketGetServerListHandler : PacketDirectSocket
     {
         public override ServerPacketType Type => ServerPacketType.GetServerList;
     }
 
-    public class PacketMapData : PacketDirectSocket
+    public class PacketMapDataHandler : PacketDirectSocket
     {
         public override ServerPacketType Type => ServerPacketType.LoadMapData;
     }
 
-    public class PacketCreateCharacterError : PacketDirectSocket
+    public class PacketCreateCharacterErrorHandler : PacketDirectSocket
     {
         public override ServerPacketType Type => ServerPacketType.CreateCharacterError;
     }
 
-    public class PacketCreateCharacterFinish : PacketDirectSocket
+    public class PacketCreateCharacterFinishHandler : PacketDirectSocket
     {
         public override ServerPacketType Type => ServerPacketType.CreateCharacterFinish;
     }

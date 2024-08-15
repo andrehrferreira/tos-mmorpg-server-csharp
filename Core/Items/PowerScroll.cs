@@ -1,4 +1,4 @@
-﻿
+
 namespace Server
 {
     public class PowerScroll : Item
@@ -10,7 +10,7 @@ namespace Server
         public SkillName Skill { get; set; } = SkillName.None;
         public int Value { get; set; } = 0;
 
-        public void Use(Player entity)
+        public async Task Use(Player entity)
         {
             var playerSkillCap = entity.GetSkillCap(Skill);
             var playerSkill = entity.GetSkill(Skill);
@@ -25,7 +25,7 @@ namespace Server
             Packet.Get(ServerPacketType.SpecialMessage).Send(entity, $"{SkillNameExtensions.GetSkillNameString(Skill)} upgrade cap to {(Value + 10) * 10}");
             Packet.Get(ServerPacketType.UpdateSkillInfo).Send(entity);
             entity.Save();
-            entity.SaveToDatabase();
+            await entity.SaveToDatabase();
         }
 
         public override void GenerateAttrs()

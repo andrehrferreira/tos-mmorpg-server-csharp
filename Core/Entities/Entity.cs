@@ -1,4 +1,4 @@
-﻿using System.Reactive.Subjects;
+using System.Reactive.Subjects;
 using Newtonsoft.Json;
 
 namespace Server
@@ -39,7 +39,7 @@ namespace Server
         }
     }
 
-    public abstract class Entity
+    public abstract class Entity: IEquatable<Entity>, IComparable<Entity>
     {
         public static Dictionary<string, Func<object>> Entities = new Dictionary<string, Func<object>>();
         public static Dictionary<string, Func<Player, object>> Summons = new Dictionary<string, Func<Player, object>>();
@@ -223,6 +223,26 @@ namespace Server
             Task.Run(async () => await UpdateLoop(_cancellationTokenSource.Token));
         }
 
+        public bool Equals(Entity other)
+        {
+            return Id == other.Id || (MapIndex == other.MapIndex && Map.Equals(other.Map));
+        }
+
+        public int CompareTo(Entity other)
+        {
+            return Id.CompareTo(other.Id);
+        }
+
+        public static bool operator ==(Entity left, Entity right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Entity left, Entity right)
+        {
+            return !left.Equals(right);
+        }
+
         private async Task RegenStatsLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -248,7 +268,7 @@ namespace Server
 
         public static object GetEntityBase(string reference)
         {
-            return Entity.Entities.ContainsKey(reference) ? Entity.Entities[reference] : null;
+            return Entities.ContainsKey(reference) ? Entities[reference] : null;
         }
 
         public static void AddEntityBase(string[] refs, Func<Entity> clas)
@@ -351,7 +371,7 @@ namespace Server
             }
         }
 
-        public void Tick(int tickNumber)
+        public virtual void Tick(int tickNumber)
         {
             if (!Removed)
             {
@@ -412,7 +432,7 @@ namespace Server
         public virtual void Save() { }
 
         //Stats
-        public void CalculateStats()
+        public virtual void CalculateStats()
         {
             if (!FixedLife)
                 MaxLife = 10 + ((Vig + BonusVig) * 5) + (Str + BonusStr);
@@ -421,14 +441,14 @@ namespace Server
             MaxMana = 10 + ((Int + BonusInt) * 3);
         }
 
-        public void RestoreStats()
+        public virtual void RestoreStats()
         {
             Life = MaxLife;
             Mana = MaxMana;
             Stamina = MaxStamina;
         }
 
-        public void RegenStats()
+        public virtual void RegenStats()
         {
             if (Map == null || Removed)
                 return;
@@ -457,7 +477,7 @@ namespace Server
             }
         }
 
-        public void AddStatsPoint()
+        public virtual void AddStatsPoint()
         {
             int points = StatsPoints > 0 ? StatsPoints : 0;
             int cap = StatsCap > 0 ? StatsCap : 225;
@@ -472,9 +492,9 @@ namespace Server
             }
         }
 
-        public void OnStatsChange() { }
+        public virtual void OnStatsChange() { }
 
-        public void AddStat(Stats stat)
+        public virtual void AddStat(Stats stat)
         {
             int points = StatsPoints > 0 ? StatsPoints : 0;
             int cap = StatsCap > 0 ? StatsCap : 225;
@@ -506,7 +526,7 @@ namespace Server
         }
 
         //Statics
-        public void CalculateStatics()
+        public virtual void CalculateStatics()
         {
             int baseResistances = GetSkillValue(SkillName.MagicResistence);
             PhysicalResistance = Math.Min(BonusPhysicalResistance, 70);
@@ -519,7 +539,7 @@ namespace Server
         }
 
         //Map
-        public void SetMap(Maps map, string id)
+        public virtual void SetMap(Maps map, string id)
         {
             Map = map;
             MapIndex = id;
@@ -528,7 +548,7 @@ namespace Server
                 Socket.EntityId = id;            
         }
 
-        public void UpdatePosition(Vector3 Location)
+        public virtual void UpdatePosition(Vector3 Location)
         {
             if (Transform.Position.Diff(Location))            
                 Transform.SetPosition(Location);
@@ -1043,7 +1063,7 @@ namespace Server
             return total;
         }
 
-        protected bool ValidateHit(ICheckHitAutoAttack data, Entity actor)
+        protected virtual bool ValidateHit(ICheckHitAutoAttack data, Entity actor)
         {
             var checkHitData = new CheckHit
             {
@@ -1115,7 +1135,7 @@ namespace Server
             }
         }
 
-        public void CheckHitAutoAttack(ICheckHitAutoAttack data)
+        public virtual void CheckHitAutoAttack(ICheckHitAutoAttack data)
         {
             try
             {
@@ -1532,7 +1552,7 @@ namespace Server
             }
         }
 
-        public void Revive()
+        public virtual void Revive()
         {
             IsDead = false;
             Life = MaxLife;

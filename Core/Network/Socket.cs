@@ -1,4 +1,4 @@
-﻿using System.Net.WebSockets;
+using System.Net.WebSockets;
 
 namespace Server
 {
@@ -16,6 +16,7 @@ namespace Server
         public string CharacterId;
         public string MapIndex;
         public bool IsConnected = false;
+        public Player Player;
 
         public Socket(string uuid, WebSocket socket)
         {
@@ -24,18 +25,46 @@ namespace Server
             IsConnected = true;
         }
 
-        public void Disconnect()
+        public async Task Disconnect()
         {
+            if (Conn != null && Conn.State == WebSocketState.Open)
+            {
+                await Conn.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnected by server", CancellationToken.None);
+                IsConnected = false;
+                Conn.Dispose();
+            }
 
+            //Player?.Destroy();
         }
 
         public void Close()
         {
-
+            if (Conn != null)
+            {
+                if (Conn.State == WebSocketState.Open)                
+                    Conn.Abort();
+                
+                Conn.Dispose();
+                IsConnected = false;
+            }
         }
 
-        public void Send(byte[] data) 
-        { 
+        public async Task Send(byte[] data)
+        {
+            if (Conn != null && Conn.State == WebSocketState.Open)
+            {
+                var buffer = new ArraySegment<byte>(data);
+
+                try
+                {
+                    await Conn.SendAsync(buffer, WebSocketMessageType.Binary, true, CancellationToken.None);
+                }
+                catch (WebSocketException ex)
+                {
+                    Console.WriteLine($"WebSocket error while sending data: {ex.Message}");
+                    await Disconnect();
+                }
+            }
         }
     }
 }

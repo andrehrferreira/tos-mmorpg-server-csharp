@@ -1,4 +1,4 @@
-﻿
+
 namespace Server
 {
     public class Humanoid : Entity
@@ -54,7 +54,7 @@ namespace Server
         }
 
         // Inventory / Equipamentos
-        /*public void AddToInventory(string itemRef, int amount, int slotId = -1)
+        public void AddToInventory(string itemRef, int amount, int slotId = -1)
         {
             if (!string.IsNullOrEmpty(itemRef) && Inventory != null)
                 Inventory.AddItem(itemRef, amount, slotId);
@@ -69,9 +69,9 @@ namespace Server
 
                 if (equipament != null)
                 {
-                    await Inventory.ClearSlot(itemSlot.SlotId);
-                    var equipamentRef = new { ItemName = itemSlot.Item.Namespace, ItemRef = itemSlot.Item.Ref };
-                    Desequip(equipament.EquipmentType, ring02, false);
+                    Inventory.ClearSlot(itemSlot.SlotId);
+                    EquipamentRef equipamentRef = new EquipamentRef { ItemName = itemSlot.Item.Namespace, ItemRef = itemSlot.Item.Ref }; 
+                    await Desequip(equipament.EquipmentType, ring02, false);
 
                     switch (equipament.EquipmentType)
                     {
@@ -129,7 +129,7 @@ namespace Server
                 }
             }
         }
-        */
+        
         private bool IsTwoHandedWeapon(WeaponType weaponType)
         {
             return weaponType == WeaponType.TwoHandedAxe ||
@@ -202,7 +202,7 @@ namespace Server
             return total;
         }
 
-        /*public int GetEquipamentsResistence(ResistenceType resistenceType)
+        public int GetEquipamentsResistence(ResistanceType resistenceType)
         {
             int total = 0;
 
@@ -212,13 +212,22 @@ namespace Server
                 {
                     if (equipament != null && !equipament.Flags.HasFlag(ItemStates.Broken))
                     {
-                        total += equipament.GetResistence(resistenceType);
+                        switch (resistenceType)
+                        {
+                            case ResistanceType.Physical: total += equipament.Armor; break;
+                            case ResistanceType.Fire: total += equipament.FireResistence; break;
+                            case ResistanceType.Cold: total += equipament.ColdResistence; break;
+                            case ResistanceType.Poison: total += equipament.PoisonResistence; break;
+                            case ResistanceType.Energy: total += equipament.EnergyResistence; break;
+                            case ResistanceType.Light: total += equipament.LightResistence; break;
+                            case ResistanceType.Dark: total += equipament.DarkResistence; break;
+                        }
                     }
                 }
             }
 
             return total;
-        }*/
+        }
 
         public void RefreshEquipamentsHeavy()
         {
@@ -239,5 +248,62 @@ namespace Server
             HasMediumEquipamentPart = hasEquipmentMediumPart;
             HasHeavyEquipamentPart = hasEquipmentHeavyPart;
         }
+
+        //Damage
+        public override void CheckHitAutoAttack(ICheckHitAutoAttack data)
+        {
+            try
+            {
+                var actor = Map.FindEntityById(data.ActorId);
+
+                if (actor == null || !ValidateHit(data, actor))
+                    throw new Exception("Invalid data hit");
+
+                var bonusDamage = GetWeaponBaseDamage();
+                actor.TakeDamage(this, Dices.D1D4, DamageType.Physic, bonusDamage);
+                // this.GainSkillExperienceByWeapon(this.GetWeaponType());
+            }
+            catch (Exception ex){}
+        }
+
+        public override int GetWeaponBaseDamage()
+        {
+            var weapon = Mainhand != null ? Items.GetItemByRef(Mainhand.ItemRef) as Weapon : null;
+            var baseDamage = weapon != null ? weapon.Damage : Dices.D1D4;
+            var bonusDamage = 0;
+
+            if (weapon != null && weapon.Flags.HasFlag(ItemStates.Broken))
+                baseDamage = Dices.D1D4;
+
+            if (weapon != null)
+                bonusDamage = weapon.BonusDamage;
+
+            var bonusBySkill = GetSkillBonusByWeaponType(GetWeaponType());
+            return RollDice(baseDamage) + bonusBySkill + bonusDamage;
+        }
+
+        public Dices GetWeaponDiceDamage()
+        {
+            var weapon = Mainhand != null ? Items.GetItemByRef(Mainhand.ItemRef) as Weapon : null;
+
+            if (weapon != null && weapon.Flags.HasFlag(ItemStates.Broken))
+                weapon = null;
+
+            return weapon != null ? weapon.Damage : Dices.D1D4;
+        }
+
+        public int GetWeaponSpeed()
+        {
+            var weapon = Mainhand != null ? Items.GetItemByRef(Mainhand.ItemRef) as Weapon : null;
+            return weapon != null ? weapon.AttackSpeed : 0;
+        }
+
+        public override WeaponType GetWeaponType()
+        {
+            var weapon = Mainhand != null ? Items.GetItemByRef(Mainhand.ItemRef) as Weapon : null;
+            return weapon != null ? weapon.WeaponType : WeaponType.None;
+        }
+
+
     }
 }

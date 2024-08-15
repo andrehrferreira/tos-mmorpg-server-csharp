@@ -1,4 +1,4 @@
-﻿using Server;
+using Server;
 
 namespace Server.Packets
 {
@@ -15,7 +15,7 @@ namespace Server.Packets
         }
     }
 
-    public class PingHandler : PacketHandler
+    public class PacketPingHandler : PacketHandler
     {
         public override ClientPacketType Type => ClientPacketType.Ping;
 

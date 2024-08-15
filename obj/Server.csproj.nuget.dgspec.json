@@ -53,6 +53,10 @@
               "target": "Package",
               "version": "[2.0.0, )"
             },
+            "DotNetEnv": {
+              "target": "Package",
+              "version": "[3.1.0, )"
+            },
             "JWT": {
               "target": "Package",
               "version": "[10.1.1, )"
@@ -63,11 +67,11 @@
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[8.0.7, )"
+              "version": "[8.0.8, )"
             },
             "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
-              "version": "[8.0.7, )"
+              "version": "[8.0.8, )"
             },
             "Microsoft.Extensions.Caching.Abstractions": {
               "target": "Package",
@@ -77,13 +81,9 @@
               "target": "Package",
               "version": "[8.0.0, )"
             },
-            "Microsoft.Extensions.Caching.Redis": {
-              "target": "Package",
-              "version": "[2.2.0, )"
-            },
             "Microsoft.Extensions.Caching.StackExchangeRedis": {
               "target": "Package",
-              "version": "[8.0.7, )"
+              "version": "[8.0.8, )"
             },
             "Microsoft.Extensions.Configuration.Json": {
               "target": "Package",
@@ -100,6 +100,10 @@
             "NLog": {
               "target": "Package",
               "version": "[5.3.3, )"
+            },
+            "StackExchange.Redis": {
+              "target": "Package",
+              "version": "[2.8.0, )"
             },
             "System.Collections.Concurrent": {
               "target": "Package",
