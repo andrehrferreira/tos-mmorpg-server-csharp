@@ -9,7 +9,7 @@ namespace Server.Gameplay.Items
             DropsPossibility[cls] = new LootRef(chance, amountMin, amountMax);
         }
 
-        public override async Task Use(Entity entity)
+        /*public override async Task Use(Entity entity)
         {
             if (entity is Player player && player.Socket != null)
             {
@@ -27,6 +27,6 @@ namespace Server.Gameplay.Items
 
                 await Task.CompletedTask;
             }
-        }
+        }*/
     }
 }

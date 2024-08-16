@@ -1,11 +1,10 @@
-﻿
 namespace Server
 {
     public static partial class Repository
     {
         public static async Task MapsLoadAll()
         {
-            Console.WriteLine("Loading Maps Data...");
+            Logger.Log("Loading Maps Data...");
 
             var dataPath = Path.Combine(Directory.GetCurrentDirectory(), "data", "maps");
             var dataFiles = Directory.GetFiles(dataPath, "*.data");
@@ -16,10 +15,10 @@ namespace Server
                 var data = await File.ReadAllTextAsync(pathFile);
                 var totalSpots = Maps.ParseLevelData(levelName, data);
 
-                Console.WriteLine($"Map {levelName} loaded {totalSpots} spots...");
+                Logger.Log($"Map {levelName} loaded {totalSpots} spots...");
             }
 
-            Console.WriteLine("Map loading completed");
+            Logger.Log("Map loading completed");
         }
     }
 }

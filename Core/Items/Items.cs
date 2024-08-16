@@ -11,7 +11,7 @@ namespace Server
         {
             foreach (Type t in Namespaces.GetTypesInNamespace("Server.Gameplay.Items"))
             {
-                if (Activator.CreateInstance(t) is Item item)
+                if (!t.IsAbstract && Activator.CreateInstance(t) is Item item)
                     AddBaseItem(item.Namespace, t);
             }
         }
@@ -20,15 +20,21 @@ namespace Server
         {
             foreach (var ns in refs)
             {
-                BaseItems[ns] = clas;
-                BaseItems[ns.ToLower()] = clas;
+                if (ns != null)
+                {
+                    BaseItems[ns] = clas;
+                    BaseItems[ns.ToLower()] = clas;
+                }
             }
         }
 
         public static void AddBaseItem(string ns, Type clas)
         {
-            BaseItems[ns] = clas;
-            BaseItems[ns.ToLower()] = clas;
+            if(ns != null)
+            {
+                BaseItems[ns] = clas;
+                BaseItems[ns.ToLower()] = clas;
+            }
         }
 
         public static Type FindBaseItemByNamespace(string ns)

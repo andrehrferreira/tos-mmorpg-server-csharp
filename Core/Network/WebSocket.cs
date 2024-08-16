@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Net;
-using System.Net.Sockets;
 using System.Net.WebSockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Server
@@ -10,22 +10,20 @@ namespace Server
     {
         private static readonly ConcurrentDictionary<WebSocket, (string, SemaphoreSlim)> clients = new();
         private static readonly ConcurrentDictionary<string, Socket> sockets = new();
+        private static readonly BlockingCollection<(Socket socket, ByteBuffer buffer)> messageQueue = new();
 
         private readonly int Port;
-        private readonly string ReadyMessage = "ready";
-        private readonly byte[] MsgBuffer;
-        private readonly ArraySegment<byte> Segment;
 
         public WebSocketServer(int port = 6588)
         {
             Port = port;
-            MsgBuffer = Encoding.UTF8.GetBytes(ReadyMessage);
-            Segment = new ArraySegment<byte>(MsgBuffer);
             QueueBuffer.StartTicking((int)(Maps.DeltaTime * 1000));
         }
 
         public async Task StartAsync()
         {
+            Task.Factory.StartNew(() => ProcessMessages(), TaskCreationOptions.LongRunning);
+
             HttpListener listener = new HttpListener();
 
             if (listener.IsListening)
@@ -38,7 +36,7 @@ namespace Server
             {
                 listener.Start();
 
-                Console.WriteLine($"WebSocket server is running on ws://localhost:{Port}");
+                Logger.Log($"WebSocket server is running on ws://localhost:{Port}");
 
                 while (true)
                 {
@@ -58,20 +56,16 @@ namespace Server
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Listener error: {ex.Message}");
+                        Logger.Error($"Listener error: {ex.Message}");
                     }
                 }
             }
             catch (HttpListenerException ex)
             {
-                if (ex.Message.Contains("Access is denied"))
-                {
+                if (ex.Message.Contains("Access is denied"))                
                     return;
-                }
-                else
-                {
-                    throw;
-                }
+                                
+                throw;                
             }
         }
 
@@ -86,13 +80,9 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to accept WebSocket: {ex.Message}");
+                Logger.Error($"Failed to accept WebSocket: {ex.Message}");
                 return;
             }
-
-            string name = $"Client{clients.Count + 1}";
-            SemaphoreSlim semaphore = new(1, 1);
-            clients.TryAdd(webSocket, (name, semaphore));
 
             string UUID = GUID.Generate();
             Socket socket = new Socket(UUID, webSocket);
@@ -105,12 +95,18 @@ namespace Server
 
             socket.Send(message);
 
-            Console.WriteLine($"Client connect: {socket.Id.Substring(0, 6)}");
+            Logger.Log($"Client connect: {socket.Id.Substring(0, 6)}");
+
+            // Isolar o loop de ReceiveAsync em uma thread separada
+            Task.Run(async () => await ReceiveMessages(socket, webSocket));
+        }
+
+        private async Task ReceiveMessages(Socket socket, WebSocket webSocket)
+        {
+            var buffer = new ArraySegment<byte>(new byte[1024]);
 
             try
             {
-                var buffer = new ArraySegment<byte>(new byte[1024]);
-
                 while (webSocket.State == WebSocketState.Open)
                 {
                     WebSocketReceiveResult result = await webSocket.ReceiveAsync(buffer, CancellationToken.None).ConfigureAwait(false);
@@ -118,39 +114,33 @@ namespace Server
                     if (result.MessageType == WebSocketMessageType.Close)
                         break;
 
-                    var receivedData = buffer.Array[..result.Count];
-                    var byteBuffer = new ByteBuffer(receivedData);
-
-                    await ProcessMessage(socket, byteBuffer);
+                    if (result.Count > 0)
+                    {
+                        var receivedData = buffer.Array[..result.Count];
+                        var byteBuffer = new ByteBuffer(receivedData);
+                        messageQueue.Add((socket, byteBuffer));
+                    }
                 }
             }
             catch (WebSocketException ex)
             {
-                Console.WriteLine($"WebSocket error: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
+                Logger.Error($"WebSocket error: {ex.Message}");
             }
             finally
             {
                 await HandleDisconnect(socket);
 
-                if (webSocket.State == WebSocketState.Open || webSocket.State == WebSocketState.CloseReceived)
-                {
-                    try
-                    {
-                        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by server", CancellationToken.None).ConfigureAwait(false);
-                    }
-                    catch (WebSocketException ex)
-                    {
-                        Console.WriteLine($"WebSocket close error: {ex.Message}");
-                    }
-                }
-
+                if (webSocket.State == WebSocketState.Open || webSocket.State == WebSocketState.CloseReceived)                
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by server", CancellationToken.None).ConfigureAwait(false);
+                
                 webSocket.Dispose();
-                clients.TryRemove(webSocket, out _);
             }
+        }
+
+        private void ProcessMessages()
+        {
+            foreach (var (socket, buffer) in messageQueue.GetConsumingEnumerable())            
+                Task.Run(() => ProcessMessage(socket, buffer));            
         }
 
         private async Task HandleDisconnect(Socket socket)
@@ -169,13 +159,65 @@ namespace Server
             sockets.TryRemove(socket.Id, out _);
             clients.TryRemove(socket.Conn, out _);
 
-            // Console.WriteLine($"Client disconnected: {socket.Id}");
+            Logger.Log($"Client disconnected: {socket.Id}");
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static async Task ProcessMessage(Socket socket, ByteBuffer buffer)
         {
+            bool isEncrypted = buffer.GetByte() == 1;
+            byte[] messageBuff = ByteBuffer.ToArrayBuffer(buffer.GetBuffer(), 1);
+
+            if(socket.DiffKey != null && isEncrypted)
+            {
+                ByteBuffer packet = new ByteBuffer(DecryptMessage(messageBuff, socket.DiffKey));
+                ClientPacketType packetType = (ClientPacketType)packet.GetByte();
+
+                if(packetType == ClientPacketType.Queue)
+                {
+                    List<ByteBuffer> packets = ByteBuffer.SplitPackets(packet);
+
+                    foreach(var subPacket in packets)
+                    {
+                        ClientPacketType typeSubpacket = (ClientPacketType)subPacket.GetByte();
+                        PacketHandler.HandlePacket(socket, subPacket, typeSubpacket);
+                    }
+                }
+                else
+                {
+                    PacketHandler.HandlePacket(socket, packet, packetType);
+                }
+            }
+            else if(!isEncrypted)
+            {
+                ByteBuffer packet = new ByteBuffer(messageBuff);
+                ClientPacketType packetType = (ClientPacketType)packet.GetByte();
+
+                if (
+                    packetType == ClientPacketType.Ping ||
+                    packetType == ClientPacketType.Login ||
+                    packetType == ClientPacketType.LoginSteam ||
+                    packetType == ClientPacketType.CharacterList ||
+                    packetType == ClientPacketType.FullCharacter ||
+                    packetType == ClientPacketType.EnterToWorld ||
+                    packetType == ClientPacketType.CreateCharacter
+                )
+                {
+                    PacketHandler.HandlePacket(socket, packet, packetType);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte[] DecryptMessage(byte[] encryptedData, string key)
+        {
+            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            byte[] decryptedBytes = new byte[encryptedData.Length];
+
+            for (int i = 0; i < encryptedData.Length; i++)            
+                decryptedBytes[i] = (byte)(encryptedData[i] ^ keyBytes[i % keyBytes.Length]);
             
-            
+            return decryptedBytes;
         }
     }
 }

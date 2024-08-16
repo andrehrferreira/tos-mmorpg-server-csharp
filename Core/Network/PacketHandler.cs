@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace Server
 {
@@ -11,9 +11,9 @@ namespace Server
 
         static PacketHandler()
         {
-            foreach (Type t in Namespaces.GetTypesInNamespace("Server.Packets"))
+            foreach (Type t in Namespaces.GetTypesInNamespace("Server.Handlers"))
             {
-                if (Activator.CreateInstance(t) is PacketHandler packetHandler)                
+                if (!t.IsAbstract && Activator.CreateInstance(t) is PacketHandler packetHandler)                
                     Handlers[(int)packetHandler.Type] = packetHandler;                
             }
         }

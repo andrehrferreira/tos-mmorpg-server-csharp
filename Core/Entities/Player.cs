@@ -126,18 +126,18 @@ namespace Server
             OnlinePlayers = playersOnline;
         }
 
-        public static void FromDatabase(dynamic data)
+        public static void FromDatabase(CharacterEntity data)
         {
             try
             {
-                var steamArchivements = data.steamArchivements as List<string>;
+                /*var steamArchivements = data.steamArchivements as List<string>;
 
                 if (steamArchivements != null)                
-                    data.steamArchivements = steamArchivements.Distinct().ToList();
+                    data.steamArchivements = steamArchivements.Distinct().ToList();*/
             }
             catch{}
 
-            PlayerData[data.id.ToString()] = data;
+            PlayerData[data.Id.ToString()] = data;
         }
 
         public static dynamic GetData(string characterId)
@@ -506,7 +506,7 @@ namespace Server
             return data;
         }
 
-        public static string ParseData(string characterId, object metadata = null)
+        public static string ParseData(string characterId)
         {
             var character = GetData(characterId);
 

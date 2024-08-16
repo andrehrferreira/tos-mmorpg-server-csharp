@@ -389,7 +389,7 @@ namespace Server
             {
                 Removed = true;
                 Player.OnlinePlayers.Remove(CharacterId);
-                Console.WriteLine($"Client disconnected: {Socket.Id} | Char: {CharacterId} ({Name})");
+                Logger.Log($"Client disconnected: {Socket.Id} | Char: {CharacterId} ({Name})");
                 Socket.Close();
                 Destroy();
             }

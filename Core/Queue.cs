@@ -39,6 +39,8 @@ namespace Server
 
         public static async Task ExecuteAsync()
         {
+            Logger.Log("Start Queue");
+
             CancelToken = new CancellationTokenSource();
 
             while (!CancelToken.IsCancellationRequested)

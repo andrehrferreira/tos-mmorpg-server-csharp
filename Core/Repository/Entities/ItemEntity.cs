@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -7,7 +7,6 @@ namespace Server
     [Table("items")]
     public class ItemEntity
     {
-        [Key]
         [Required]
         public string Id { get; set; }
 

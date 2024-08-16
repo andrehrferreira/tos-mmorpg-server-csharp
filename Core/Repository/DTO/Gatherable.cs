@@ -1,6 +1,6 @@
-﻿namespace Server
+namespace Server
 {
-    public class GatherableSettings : IGatherable
+    public struct GatherableSettings : IGatherable
     {
         public string Map { get; set; }
         public bool RespawnOnStart { get; set; }

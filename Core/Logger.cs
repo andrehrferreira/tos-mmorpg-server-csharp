@@ -1,4 +1,4 @@
-﻿using NLog;
+using NLog;
 
 namespace Server
 {
@@ -56,6 +56,15 @@ namespace Server
             {
                 Console.WriteLine(err);
             }
+        }
+
+        public static void Error(string message)
+        {
+            string logMessage = $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {message}";
+
+            _logger.Log(LogLevel.Error, logMessage);
+
+            Console.WriteLine(logMessage);
         }
     }
 }

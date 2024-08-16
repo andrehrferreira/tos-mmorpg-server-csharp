@@ -11,18 +11,37 @@ namespace Server
     {
         public string Id;
         public WebSocket Conn;
+        public string AccountId;
         public string EntityId;
         public ICharacter Character;
         public string CharacterId;
         public string MapIndex;
         public bool IsConnected = false;
         public Player Player;
+        public string DiffKey;
+        public string Token;
+        public Plevel Plevel;
 
         public Socket(string uuid, WebSocket socket)
         {
             Id = uuid;
             Conn = socket;
             IsConnected = true;
+        }
+
+        public void SetAccountId(string accountId)
+        {
+            AccountId = accountId;
+        }
+
+        public void SetToken(string token)
+        {
+            Token = token;
+        }
+
+        public void SetPlevel(Plevel plevel)
+        {
+            Plevel = plevel;
         }
 
         public async Task Disconnect()
@@ -61,7 +80,7 @@ namespace Server
                 }
                 catch (WebSocketException ex)
                 {
-                    Console.WriteLine($"WebSocket error while sending data: {ex.Message}");
+                    Logger.Error($"WebSocket error while sending data: {ex.Message}");
                     await Disconnect();
                 }
             }

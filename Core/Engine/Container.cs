@@ -47,7 +47,11 @@ namespace Server
         public Container(Entity owner, string containerId = null)
         {
             Owner = owner;
-            ContainerId = containerId != null ? containerId.Substring(0, 12) : GUID.NewID();
+
+            ContainerId = containerId != null ?
+                containerId.Substring(0, containerId.Length > 12 ? 12 : containerId.Length) :
+                GUID.NewID();
+
             Slots = new Dictionary<int, Item>();
             ItemIndex = new Dictionary<string, SlotRef>();
         }
@@ -102,7 +106,7 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro durante o processamento dos itens: {ex.Message}");
+                Logger.Error($"Erro durante o processamento dos itens: {ex.Message}");
             }
         }
 
@@ -745,7 +749,6 @@ namespace Server
         }
     }
 
-
     public class Loot: Container
     {
         private readonly Dictionary<Type, LootRef> DropsPossibility = new Dictionary<Type, LootRef>();
@@ -809,32 +812,38 @@ namespace Server
     {
         public static Dictionary<string, Container> ContainerDictionary { get; private set; } = new Dictionary<string, Container>();
 
-        public static void FromDatabase(dynamic data)
+        public static void FromDatabase(ContainerEntity data)
         {
-            var container = new Container(null, data.containerId);
-            var items = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(data.items);
-            var itemsParsed = new List<dynamic>();
-
-            if (items != null)
+            try
             {
-                foreach (var slotId in items.Keys)
+                var container = new Container(null, data.ContainerId);
+                var items = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(data.Items);
+                var itemsParsed = new List<dynamic>();
+
+                if (items != null)
                 {
-                    try
+                    foreach (var slotId in items.Keys)
                     {
-                        if (slotId != null && int.Parse(slotId) >= 0)
+                        try
                         {
-                            items[slotId]["slotId"] = int.Parse(slotId);
-                            itemsParsed.Add(items[slotId]);
+                            if (slotId != null && int.Parse(slotId) >= 0)
+                            {
+                                items[slotId]["SlotId"] = int.Parse(slotId);
+                                itemsParsed.Add(items[slotId]);
+                            }
                         }
+                        catch { }
                     }
-                    catch {}
                 }
+
+                container.LoadFromModel(itemsParsed);
+                ContainerDictionary[data.ContainerId] = container;
             }
-
-            container.LoadFromModel(itemsParsed);
-            ContainerDictionary[data.containerId] = container;
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }            
         }
-
 
         public static bool Has(string containerId)
         {

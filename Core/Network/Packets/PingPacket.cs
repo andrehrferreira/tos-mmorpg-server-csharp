@@ -1,5 +1,3 @@
-using Server;
-
 namespace Server.Packets
 {
     public struct PingMessage

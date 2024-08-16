@@ -132,6 +132,5 @@ namespace Server
                 Packet.Get(ServerPacketType.SystemMessage)?.Send(Socket, $"Map '{mapName}' does not exist.");
             }
         }
-
     }
 }

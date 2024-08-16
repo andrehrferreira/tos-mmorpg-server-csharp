@@ -303,7 +303,5 @@ namespace Server
             var weapon = Mainhand != null ? Items.GetItemByRef(Mainhand.ItemRef) as Weapon : null;
             return weapon != null ? weapon.WeaponType : WeaponType.None;
         }
-
-
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace Server
+namespace Server
 {
-    public class CheckHit : ICheckHit
+    public struct CheckHit : ICheckHit
     {
         public string EntityId { get; set; }
         public string ActorId { get; set; }

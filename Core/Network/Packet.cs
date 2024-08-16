@@ -1,4 +1,6 @@
 
+using System.Runtime.CompilerServices;
+
 namespace Server
 {
     public class Packet
@@ -10,11 +12,12 @@ namespace Server
         {
             foreach (Type t in Namespaces.GetTypesInNamespace("Server.Packets"))
             {
-                if (Activator.CreateInstance(t) is Packet packet)                
+                if (!t.IsAbstract && Activator.CreateInstance(t) is Packet packet)                
                     Packets.Add(packet.Type, packet);                
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Get<T>(ServerPacketType type) where T : Packet
         {
             if (Packets.TryGetValue(type, out var packet))
@@ -26,6 +29,7 @@ namespace Server
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Packet Get(ServerPacketType type)
         {
             return Packets.TryGetValue(type, out Packet packet) ? packet : null;
@@ -34,6 +38,19 @@ namespace Server
         public virtual object Data()
         {
             return null;
+        }
+
+        public virtual void Send(Socket socket, string data)
+        {
+            if (socket != null)
+            {
+                var buffer = new ByteBuffer()
+                    .PutByte((byte)(int)Type)
+                    .PutString(data)
+                    .GetBuffer();
+
+                socket.Send(buffer);
+            }
         }
 
         public virtual void Send(Socket socket, object data = null, object extra = null)

@@ -1,4 +1,4 @@
-﻿namespace Server
+namespace Server
 {
     public class RespawnOptions : IRespawn
     {

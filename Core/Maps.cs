@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace Server
 {
     public class Maps
     {
         static readonly Dictionary<string, Maps> MapsInstances = new Dictionary<string, Maps>();
-        public static float DeltaTime = 0.3f;
+        public static float DeltaTime = 0.1f;
 
         public string Name;
         public string ID;
