@@ -4,7 +4,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "BlackSkull";
         public override string Name => "Black Skull";
-        public override double Weight => 10;
+        public override float Weight => 10;
         public override int GoldCost => 1;
         public override ItemRarity Rarity => ItemRarity.Unique;
     }
@@ -13,7 +13,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "BlueSkull";
         public override string Name => "Blue Skull";
-        public override double Weight => 10;
+        public override float Weight => 10;
         public override int GoldCost => 1;
         public override ItemRarity Rarity => ItemRarity.Unique;
     }
@@ -22,7 +22,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "GreenSkull";
         public override string Name => "Green Skull";
-        public override double Weight => 10;
+        public override float Weight => 10;
         public override int GoldCost => 1;
         public override ItemRarity Rarity => ItemRarity.Unique;
     }
@@ -31,7 +31,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "RedSkull";
         public override string Name => "Red Skull";
-        public override double Weight => 10;
+        public override float Weight => 10;
         public override int GoldCost => 1;
         public override ItemRarity Rarity => ItemRarity.Unique;
     }
@@ -40,7 +40,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "YellowSkull";
         public override string Name => "Yellow Skull";
-        public override double Weight => 10;
+        public override float Weight => 10;
         public override int GoldCost => 1;
         public override ItemRarity Rarity => ItemRarity.Unique;
     }

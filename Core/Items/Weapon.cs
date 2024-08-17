@@ -1,13 +1,13 @@
-﻿namespace Server
+namespace Server
 {
     public abstract class Weapon : Equipament
     {
         public override int MaxSlots => 4;
-        public Dices Damage { get; set; } = Dices.None;
-        public int BonusDamage { get; set; } = 0;
+        public virtual Dices Damage { get; set; } = Dices.None;
+        public virtual int BonusDamage { get; set; } = 0;
         public override EquipmentType EquipmentType => EquipmentType.Weapon;
-        public WeaponType WeaponType { get; set; } = WeaponType.None;
-        public int AttackSpeed { get; set; } = 2;
+        public virtual WeaponType WeaponType { get; set; } = WeaponType.None;
+        public virtual float AttackSpeed { get; set; } = 2;
         public override int MaxAttrs { get; set; } = 2;
 
         private static readonly Dictionary<string, string> DiceUpgradeMap = new Dictionary<string, string>

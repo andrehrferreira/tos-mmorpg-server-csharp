@@ -1,4 +1,4 @@
-﻿namespace Server
+namespace Server
 {
     public abstract class Equipament : Item
     {
@@ -259,7 +259,7 @@
     {
         public override int MaxAttrs => 0;
         public override int MaxSlots => 1;
-        public int BlockChance { get; private set; } = 0;
+        public virtual int BlockChance { get; private set; } = 0;
 
         public void SetBlockChance(int min, int max = 0)
         {

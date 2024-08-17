@@ -4,7 +4,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "GoldCoin";
         public override string Name => "Gold Coin";
-        public override double Weight => 0.01;
+        public override float Weight => 0.01f;
     }
 
     public class SilverCoin : Stackable
@@ -12,7 +12,7 @@ namespace Server.Gameplay.Items
         public override string Namespace => "SilverCoin";
         public override string Name => "Silver Coin";
         public override int GoldCost => 1000;
-        public override double Weight => 0.01;
+        public override float Weight => 0.01f;
     }
 
     public class AncientMagicStoneRunes : Item
@@ -20,7 +20,7 @@ namespace Server.Gameplay.Items
         public override string Namespace => "AncientMagicStoneRunes";
         public override string Name => "Ancient Magic Stone Runes";
         public override int GoldCost => 5000;
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
     }
 
     public class AncientRune : Item
@@ -28,7 +28,7 @@ namespace Server.Gameplay.Items
         public override string Namespace => "AncientRune";
         public override string Name => "Ancient Rune";
         public override int GoldCost => 1000;
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
     }
 
     public class Bandage : Consumable
@@ -36,7 +36,7 @@ namespace Server.Gameplay.Items
         public override string Namespace => "Bandage";
         public override string Name => "Bandage";
         public override int GoldCost => 1;
-        public override double Weight => 0.01;
+        public override float Weight => 0.01f;
 
         public override async Task Use(Entity entity)
         {
@@ -61,7 +61,7 @@ namespace Server.Gameplay.Items
         public override string Namespace => "LockpickSet";
         public override string Name => "Lockpick Set";
         public override int GoldCost => 10;
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
     }
 
     public class Sand : Stackable
@@ -69,7 +69,7 @@ namespace Server.Gameplay.Items
         public override string Namespace => "Sand";
         public override string Name => "Sand";
         public override int GoldCost => 1;
-        public override double Weight => 0.01;
+        public override float Weight => 0.01f;
     }
 
     //Others

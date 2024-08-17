@@ -6,7 +6,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Ametist";
         public override string Name => "Ametist";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 300;
         public override ItemRarity Rarity => ItemRarity.Rare;
     }
@@ -15,7 +15,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Diamond";
         public override string Name => "Diamond";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 500;
         public override ItemRarity Rarity => ItemRarity.Legendary;
     }
@@ -24,7 +24,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Emerald";
         public override string Name => "Emerald";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 400;
         public override ItemRarity Rarity => ItemRarity.Rare;
     }
@@ -33,7 +33,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Pearl";
         public override string Name => "Pearl";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 350;
         public override ItemRarity Rarity => ItemRarity.Magic;
     }
@@ -42,7 +42,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Ruby";
         public override string Name => "Ruby";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 450;
         public override ItemRarity Rarity => ItemRarity.Rare;
     }
@@ -51,7 +51,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Sunstone";
         public override string Name => "Sunstone";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 600;
         public override ItemRarity Rarity => ItemRarity.Legendary;
     }
@@ -60,7 +60,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Topaz";
         public override string Name => "Topaz";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 350;
         public override ItemRarity Rarity => ItemRarity.Rare;
     }

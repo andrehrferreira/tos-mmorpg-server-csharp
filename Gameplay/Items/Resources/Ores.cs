@@ -4,7 +4,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "IronOre";
         public override string Name => "Iron Ore";
-        public override double Weight => 1;
+        public override float Weight => 1;
         public override int GoldCost => 1;
     }
 
@@ -12,7 +12,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "CopperOre";
         public override string Name => "Copper Ore";
-        public override double Weight => 2;
+        public override float Weight => 2;
         public override int GoldCost => 1;
     }
 
@@ -20,7 +20,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "SilverOre";
         public override string Name => "Silver Ore";
-        public override double Weight => 2;
+        public override float Weight => 2;
         public override int GoldCost => 5;
     }
 
@@ -28,7 +28,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "GoldOre";
         public override string Name => "Gold Ore";
-        public override double Weight => 3;
+        public override float Weight => 3;
         public override int GoldCost => 25;
     }
 
@@ -36,7 +36,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "DarkOre";
         public override string Name => "Dark Ore";
-        public override double Weight => 4;
+        public override float Weight => 4;
         public override int GoldCost => 150;
     }
 
@@ -44,7 +44,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "MithrilOre";
         public override string Name => "Mithril Ore";
-        public override double Weight => 6;
+        public override float Weight => 6;
         public override int GoldCost => 300;
     }
 
@@ -52,7 +52,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "HeavenlyOre";
         public override string Name => "Heavenly Ore";
-        public override double Weight => 10;
+        public override float Weight => 10;
         public override int GoldCost => 2000;
     }
 
@@ -61,7 +61,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "CopperIngot";
         public override string Name => "Copper Ingot";
-        public override double Weight => 1;
+        public override float Weight => 1;
         public override int GoldCost => 5;
     }
 
@@ -69,7 +69,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "IronIngot";
         public override string Name => "Iron Ingot";
-        public override double Weight => 1;
+        public override float Weight => 1;
         public override int GoldCost => 5;
     }
 
@@ -77,7 +77,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "SteelIngot";
         public override string Name => "Steel Ingot";
-        public override double Weight => 0.5;
+        public override float Weight => 0.5f;
         public override int GoldCost => 15;
     }
 
@@ -85,7 +85,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "SilverIngot";
         public override string Name => "Silver Ingot";
-        public override double Weight => 1;
+        public override float Weight => 1;
         public override int GoldCost => 25;
     }
 
@@ -93,7 +93,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "GoldIngot";
         public override string Name => "Gold Ingot";
-        public override double Weight => 2;
+        public override float Weight => 2;
         public override int GoldCost => 50;
     }
 
@@ -101,7 +101,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "DarkIngot";
         public override string Name => "Dark Ingot";
-        public override double Weight => 2;
+        public override float Weight => 2;
         public override int GoldCost => 100;
     }
 
@@ -109,7 +109,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "DarkSteelIngot";
         public override string Name => "Dark Steel Ingot";
-        public override double Weight => 1.5;
+        public override float Weight => 1.5f;
         public override int GoldCost => 150;
     }
 
@@ -117,7 +117,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "DwarfMetalIngot";
         public override string Name => "Dwarf Metal Ingot";
-        public override double Weight => 10;
+        public override float Weight => 10;
         public override int GoldCost => 500;
     }
 
@@ -125,7 +125,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "MithrilIngot";
         public override string Name => "Mithril Ingot";
-        public override double Weight => 10;
+        public override float Weight => 10;
         public override int GoldCost => 500;
     }
 
@@ -133,7 +133,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "HeavenlyIngot";
         public override string Name => "Heavenly Ingot";
-        public override double Weight => 10;
+        public override float Weight => 10;
         public override int GoldCost => 1000;
     }
 }

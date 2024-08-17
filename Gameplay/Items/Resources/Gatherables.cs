@@ -4,7 +4,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Coal";
         public override string Name => "Coal";
-        public override double Weight => 0.5;
+        public override float Weight => 0.5f;
         public override int GoldCost => 1;
     }
 
@@ -12,7 +12,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Stone";
         public override string Name => "Stone";
-        public override double Weight => 0.5;
+        public override float Weight => 0.5f;
         public override int GoldCost => 1;
     }
 
@@ -20,7 +20,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Tin";
         public override string Name => "Tin";
-        public override double Weight => 0.2;
+        public override float Weight => 0.2f;
         public override int GoldCost => 1;
     }
 
@@ -28,7 +28,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Stick";
         public override string Name => "Stick";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
     }
 }

@@ -4,7 +4,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Apple";
         public override string Name => "Apple";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
 
         public override async Task Use(Entity entity)
@@ -17,7 +17,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "ApplePie";
         public override string Name => "Apple Pie";
-        public override double Weight => 1;
+        public override float Weight => 1;
         public override int GoldCost => 20;
 
         public override async Task Use(Entity entity)
@@ -30,7 +30,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Bacon";
         public override string Name => "Bacon";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 10;
 
         public override async Task Use(Entity entity)
@@ -43,7 +43,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "BakedFish";
         public override string Name => "Baked Fish";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 50;
 
         public override async Task Use(Entity entity)
@@ -56,7 +56,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Beer";
         public override string Name => "Beer";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 5;
 
         public override async Task Use(Entity entity)
@@ -69,7 +69,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Bread";
         public override string Name => "Bread";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
 
         public override async Task Use(Entity entity)
@@ -82,7 +82,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Butter";
         public override string Name => "Butter";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 20;
     }
 
@@ -90,7 +90,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Cabbage";
         public override string Name => "Cabbage";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
     }
 
@@ -98,7 +98,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Cake";
         public override string Name => "Cake";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 100;
 
         public override async Task Use(Entity entity)
@@ -111,7 +111,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Carrot";
         public override string Name => "Carrot";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 5;
 
         public override async Task Use(Entity entity)
@@ -124,7 +124,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "CheeseWedge";
         public override string Name => "Cheese Wedge";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 20;
 
         public override async Task Use(Entity entity)
@@ -137,7 +137,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Chocolate";
         public override string Name => "Chocolate";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 50;
 
         public override async Task Use(Entity entity)
@@ -150,7 +150,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Cocoa";
         public override string Name => "Cocoa";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 20;
 
         public override async Task Use(Entity entity)
@@ -163,7 +163,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Coconut";
         public override string Name => "Coconut";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 10;
 
         public override async Task Use(Entity entity)
@@ -176,7 +176,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Cookies";
         public override string Name => "Cookies";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 10;
 
         public override async Task Use(Entity entity)
@@ -193,7 +193,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Corn";
         public override string Name => "Corn";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 5;
 
         public override async Task Use(Entity entity)
@@ -206,7 +206,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Cucumber";
         public override string Name => "Cucumber";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 2;
 
         public override async Task Use(Entity entity)
@@ -219,7 +219,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Egg";
         public override string Name => "Egg";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
 
         public override async Task Use(Entity entity)
@@ -232,7 +232,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "FishRaw";
         public override string Name => "Fish Raw";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 2;
     }
 
@@ -240,7 +240,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "FishSteak";
         public override string Name => "Fish Steak";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 10;
 
         public override async Task Use(Entity entity)
@@ -253,7 +253,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Grapes";
         public override string Name => "Grapes";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 10;
 
         public override async Task Use(Entity entity)
@@ -267,7 +267,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Ham";
         public override string Name => "Ham";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 25;
 
         public override async Task Use(Entity entity)
@@ -280,7 +280,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Honey";
         public override string Name => "Honey";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 100;
 
         public override async Task Use(Entity entity)
@@ -294,7 +294,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Leek";
         public override string Name => "Leek";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
     }
 
@@ -302,7 +302,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Lemon";
         public override string Name => "Lemon";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 5;
     }
 
@@ -310,7 +310,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Lettuce";
         public override string Name => "Lettuce";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
     }
 
@@ -318,7 +318,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Mead";
         public override string Name => "Mead";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 100;
 
         public override async Task Use(Entity entity)
@@ -332,7 +332,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Meat";
         public override string Name => "Meat";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
     }
 
@@ -340,7 +340,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Meatstick";
         public override string Name => "Meatstick";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 5;
 
         public override async Task Use(Entity entity)
@@ -353,7 +353,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Melon";
         public override string Name => "Melon";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 10;
     }
 
@@ -361,7 +361,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Milk";
         public override string Name => "Milk";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
     }
 
@@ -369,7 +369,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Mushrooms";
         public override string Name => "Mushrooms";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 2;
 
         public override async Task Use(Entity entity)
@@ -383,7 +383,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "OmeleteWithBacon";
         public override string Name => "Omelete With Bacon";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 10;
 
         public override async Task Use(Entity entity)
@@ -398,7 +398,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Onion";
         public override string Name => "Onion";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 3;
     }
 
@@ -406,7 +406,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "OnionSoup";
         public override string Name => "Onion Soup";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 80;
 
         public override async Task Use(Entity entity)
@@ -429,7 +429,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Pear";
         public override string Name => "Pear";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 3;
     }
 
@@ -437,7 +437,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Pepper";
         public override string Name => "Pepper";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 3;
     }
 
@@ -445,7 +445,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Potato";
         public override string Name => "Potato";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 5;
     }
 
@@ -453,7 +453,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "PotatoSoup";
         public override string Name => "Potato Soup";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 150;
 
         public override async Task Use(Entity entity)
@@ -476,7 +476,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Pumpkin";
         public override string Name => "Pumpkin";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 20;
     }
 
@@ -484,7 +484,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "RawChickenLeg";
         public override string Name => "Raw Chicken Leg";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
     }
 
@@ -492,7 +492,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Ribs";
         public override string Name => "Ribs";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 150;
 
         public override async Task Use(Entity entity)
@@ -505,7 +505,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "RoundCheese";
         public override string Name => "Round Cheese";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 80;
 
         public override async Task Use(Entity entity)
@@ -518,7 +518,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Sandwich";
         public override string Name => "Sandwich";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 10;
 
         public override async Task Use(Entity entity)
@@ -531,7 +531,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Sausage";
         public override string Name => "Sausage";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 5;
 
         public override async Task Use(Entity entity)
@@ -544,7 +544,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Strawberry";
         public override string Name => "Strawberry";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
 
         public override async Task Use(Entity entity)
@@ -557,7 +557,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Sugar";
         public override string Name => "Sugar";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 10;
     }
 
@@ -565,7 +565,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Sushi";
         public override string Name => "Sushi";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 100;
     }
 
@@ -573,7 +573,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Tomato";
         public override string Name => "Tomato";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 5;
 
         public override async Task Use(Entity entity)
@@ -586,7 +586,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Water";
         public override string Name => "Water";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
     }
 
@@ -594,7 +594,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Wheat";
         public override string Name => "Wheat";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
     }
 
@@ -602,7 +602,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Wine";
         public override string Name => "Wine";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 300;
 
         public override async Task Use(Entity entity)

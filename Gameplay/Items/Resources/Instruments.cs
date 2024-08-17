@@ -4,7 +4,7 @@ namespace Server.Gameplay.Items
     {
         public override string Namespace => "Flute";
         public override string Name => "Flute";
-        public override double Weight => 0.1;
+        public override float Weight => 0.1f;
         public override int GoldCost => 1;
     }
 }
