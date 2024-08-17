@@ -4,6 +4,7 @@ namespace Server
 {
     public interface ICharacter
     {
+
         string Map { get; set; }
     }
 
@@ -13,8 +14,8 @@ namespace Server
         public WebSocket Conn;
         public string AccountId;
         public string EntityId;
-        public ICharacter Character;
-        public string CharacterId;
+        public CharacterEntity Character { get; set; }
+        public string CharacterId { get; set; }
         public string MapIndex;
         public bool IsConnected = false;
         public Player Player;

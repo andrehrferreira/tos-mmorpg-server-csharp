@@ -6,6 +6,7 @@
     <RootNamespace>server</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <NoWarn>4014, 1998</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

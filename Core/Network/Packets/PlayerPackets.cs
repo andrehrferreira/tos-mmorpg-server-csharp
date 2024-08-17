@@ -1,5 +1,20 @@
 namespace Server.Packets
 {
+    public class PacketCharacterList : PacketDirectSocket
+    {
+        public override ServerPacketType Type => ServerPacketType.CharacterList;
+    }
+
+    public class PacketFullCharacter : PacketDirectSocket
+    {
+        public override ServerPacketType Type => ServerPacketType.FullCharacter;
+    }
+
+    public class PacketUnstuck : PacketDirectSocket
+    {
+        public override ServerPacketType Type => ServerPacketType.Unstuck;
+    }
+
     public class PacketPartyDataHandler : Packet
     {
         public override ServerPacketType Type => ServerPacketType.PartyData;

@@ -12,7 +12,12 @@ namespace Server
             foreach (Type t in Namespaces.GetTypesInNamespace("Server.Gameplay.Items"))
             {
                 if (!t.IsAbstract && Activator.CreateInstance(t) is Item item)
+                {
                     AddBaseItem(item.Namespace, t);
+
+                    if(item.Alias != null)
+                        AddBaseItem(item.Alias, t);
+                }                    
             }
         }
 
@@ -273,18 +278,18 @@ namespace Server
         };
 
         public virtual string Namespace { get; set; }
+        public virtual string Alias { get; set; }
         public virtual string Name { get; set; }
         public virtual string ContainerId { get; set; }
         public virtual int Amount { get; set; } = 1;
         public virtual ItemRarity Rarity { get; set; } = ItemRarity.Common;
         public virtual string Ref { get; set; }
-        public virtual double Weight { get; set; } = 0.1;
+        public virtual float Weight { get; set; } = 0.1f;
         public virtual int Hue { get; set; }
         public virtual StateFlags Flags { get; set; } = new StateFlags(ItemStates.None);
         public virtual int GoldCost { get; set; } = 0;
         public virtual string CraftBy { get; set; }
-        public Dictionary<string, string> CraftingInfo { get; set; } = new Dictionary<string, string>();
-
+        public virtual Dictionary<string, string> CraftingInfo { get; set; } = new Dictionary<string, string>();
 
         public int CompareTo(Item other)
         {

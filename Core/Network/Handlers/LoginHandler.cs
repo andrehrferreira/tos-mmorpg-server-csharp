@@ -19,7 +19,7 @@ namespace Server.Handlers
         }
     }
 
-    public class LoginHandle : PacketHandler
+    public class LoginHandler : PacketHandler
     {
         public override ClientPacketType Type => ClientPacketType.Login;
 

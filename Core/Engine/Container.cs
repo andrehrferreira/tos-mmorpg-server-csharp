@@ -732,16 +732,15 @@ namespace Server
                 });
             }
         }
-
     }
 
     public class LootRef
     {
-        public int Chance { get; }
+        public float Chance { get; }
         public int AmountMin { get; }
         public int AmountMax { get; }
 
-        public LootRef(int chance, int amountMin, int amountMax)
+        public LootRef(float chance, int amountMin, int amountMax)
         {
             Chance = chance;
             AmountMin = amountMin;

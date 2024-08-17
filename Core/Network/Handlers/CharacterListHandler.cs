@@ -17,7 +17,7 @@ namespace Server.Handlers
         }
     }
 
-    public class CharacterListHandle : PacketHandler
+    public class CharacterListHandler : PacketHandler
     {
         public override ClientPacketType Type => ClientPacketType.CharacterList;
 
@@ -27,8 +27,6 @@ namespace Server.Handlers
 
             if(messageData.Token != null)
             {
-                Console.WriteLine(messageData.Token);
-
                 var decodedToken = new JwtBuilder()
                 .WithAlgorithm(new HMACSHA256Algorithm())
                 .WithSecret(Env.GetString("TOS_JWT_SECRET"))
@@ -37,11 +35,11 @@ namespace Server.Handlers
 
                 if (decodedToken.ContainsKey("data") && decodedToken["data"] is Dictionary<string, object> data)
                 {
-                    if (data.ContainsKey("masterId") && data["masterId"] is string masterId)                    
-                        Console.WriteLine($"masterId: {masterId}");                    
-
-                    if (data.ContainsKey("plevel") && data["plevel"] is int plevel)                    
-                        Console.WriteLine($"plevel: {plevel}");                    
+                    if (data.ContainsKey("masterId") && data["masterId"] is string masterId)
+                    {
+                        var characters = await Repository.GetAllCharacters(masterId);
+                        Packet.Get(ServerPacketType.CharacterList)?.Send(socket, characters);
+                    }               
                 }
             }
         }

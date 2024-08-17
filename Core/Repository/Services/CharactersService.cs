@@ -43,6 +43,58 @@ namespace Server
             }
         }
 
+        public static async Task<string> GetAllCharacters(string masterId)
+        {
+            try
+            {
+                var characters = await GetCharacters(masterId);
+                var characterList = new List<object>();
+
+                foreach (var character in characters)
+                {
+                    var chestArmor = character.ChestArmor != null ? JsonConvert.DeserializeObject(character.ChestArmor) : null;
+                    var helmetArmor = character.HelmetArmor != null ? JsonConvert.DeserializeObject(character.HelmetArmor) : null;
+                    var bootsArmor = character.BootsArmor != null ? JsonConvert.DeserializeObject(character.BootsArmor) : null;
+                    var glovesArmor = character.GlovesArmor != null ? JsonConvert.DeserializeObject(character.GlovesArmor) : null;
+                    var pantsArmor = character.PantsArmor != null ? JsonConvert.DeserializeObject(character.PantsArmor) : null;
+                    var robe = character.Robe != null ? JsonConvert.DeserializeObject(character.Robe) : null;
+                    var cloak = character.Cloak != null ? JsonConvert.DeserializeObject(character.Cloak) : null;
+                    var offhand = character.Offhand != null ? JsonConvert.DeserializeObject(character.Offhand) : null;
+                    var mainhand = character.Mainhand != null ? JsonConvert.DeserializeObject(character.Mainhand) : null;
+                    var instrument = character.Instrument != null ? JsonConvert.DeserializeObject(character.Instrument) : null;
+                    var pet = character.Pet != null ? JsonConvert.DeserializeObject(character.Pet) : null;
+                    var mount = character.Mount != null ? JsonConvert.DeserializeObject(character.Mount) : null;
+
+                    characterList.Add(new
+                    {
+                        character.Id,
+                        character.Name,
+                        character.Hashtag,
+                        character.Visual,
+                        ChestArmor = chestArmor,
+                        HelmetArmor = helmetArmor,
+                        BootsArmor = bootsArmor,
+                        GlovesArmor = glovesArmor,
+                        PantsArmor = pantsArmor,
+                        Robe = robe,
+                        Cloak = cloak,
+                        Offhand = offhand,
+                        Mainhand = mainhand,
+                    });
+                }
+
+                return JsonConvert.SerializeObject(new { characters = characterList }, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+            }
+            catch
+            {
+                return "{\"characters\":[]}";
+            }
+        }
+
+
         public static async Task<List<CharacterEntity>> GetCharacters(string accountId)
         {
             try
@@ -399,6 +451,21 @@ namespace Server
             {
                 Logger.Error(e.Message);
                 throw new Exception(e.Message);
+            }
+        }
+
+        public static string GetRarity(string jsonData)
+        {
+            try
+            {
+                var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonData);
+                var updatedData = GetRarity(data);
+                return JsonConvert.SerializeObject(updatedData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error processing item rarity: {ex.Message}");
+                return null; 
             }
         }
 

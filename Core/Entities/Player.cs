@@ -1,8 +1,5 @@
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json;
 using Server.Packets;
-using SharpCompress.Common;
-using System;
 
 namespace Server
 {
@@ -24,7 +21,7 @@ namespace Server
     {
         public static Dictionary<string, Player> Players = new Dictionary<string, Player>();
         public static HashSet<string> OnlinePlayers = new HashSet<string>();
-        public static Dictionary<string, object> PlayerData = new Dictionary<string, object>();
+        public static Dictionary<string, CharacterEntity> PlayerData = new Dictionary<string, CharacterEntity>();
 
         public CharacterEntity CharacterModel;
 
@@ -71,7 +68,6 @@ namespace Server
 
             SyncCharacterModel();
 
-            // Start interval tasks
             Task.Run(async () =>
             {
                 while (true)
@@ -140,7 +136,7 @@ namespace Server
             PlayerData[data.Id.ToString()] = data;
         }
 
-        public static dynamic GetData(string characterId)
+        public static CharacterEntity GetData(string characterId)
         {
             if (PlayerData.ContainsKey(characterId))
             {
@@ -155,14 +151,33 @@ namespace Server
         {
             if (PlayerData.ContainsKey(characterId))
             {
-                var character = new Dictionary<string, object>(PlayerData[characterId] as Dictionary<string, object>);
+                var character = PlayerData[characterId];
+                var entityType = character.GetType();
 
-                foreach (var key in data.Keys)                
-                    character[key] = data[key];
-                
+                foreach (var key in data.Keys)
+                {
+                    var property = entityType.GetProperty(key);
+
+                    if (property != null && property.CanWrite)
+                    {
+                        try
+                        {
+                            var propertyType = property.PropertyType;
+
+                            if (data[key] != null)
+                            {
+                                var convertedValue = Convert.ChangeType(data[key], propertyType);
+                                property.SetValue(character, convertedValue);
+                            }
+                        }
+                        catch{}
+                    }
+                }
+
                 PlayerData[characterId] = character;
             }
         }
+
 
         public override void UpdatePosition(Vector3 location)
         {
@@ -180,8 +195,8 @@ namespace Server
         public void RefreshLocalPlayerData()
         {
             var playerData = ParseData(CharacterId);
-            var character = JsonConvert.DeserializeObject<Dictionary<string, object>>(playerData);
-            Socket.Character = character as ICharacter;
+            var character = JsonConvert.DeserializeObject(playerData);
+            Socket.Character = (CharacterEntity)character;
             Packet.Get(ServerPacketType.FullCharacter).Send(Socket, playerData);
         }
 
@@ -191,11 +206,9 @@ namespace Server
             {
                 base.Tick(tickNumber);
 
-                if (Party != null)
-                {
+                if (Party != null)                
                     Party.Tick(tickNumber);
-                }
-
+                
                 if (tickNumber % 100 == 0)
                 {
                     Save();
@@ -413,7 +426,6 @@ namespace Server
 
         public Dictionary<string, object> Serialize()
         {
-            // Serializar a actionbar
             var actionbarParsed = new List<Dictionary<string, object>>();
             foreach (var kvp in Actionbar)
             {
@@ -426,10 +438,8 @@ namespace Server
                 });
             }
 
-            // Serializar o inventário
             var inventoryParsed = Inventory.SaveToModel();
 
-            // Serializar as habilidades
             var skillsParsed = new Dictionary<string, object>();
             var pointerIndex = 0;
 
@@ -447,8 +457,7 @@ namespace Server
 
                 pointerIndex++;
             }
-
-            // Serializar todos os dados
+                      
             var data = new Dictionary<string, object>
             {
                 { "Id", CharacterId },
@@ -510,43 +519,44 @@ namespace Server
         {
             var character = GetData(characterId);
 
-            var inventoryParsed = new List<object>();
+            if (character == null) return "{}";
 
-            if (character["inventory"] != null)
+            var mappedCharacter = new Dictionary<string, object>();
+
+            foreach (var property in typeof(CharacterEntity).GetProperties())
             {
-                var inventory = character["inventory"] is string
-                    ? JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(character["inventory"].ToString())
-                    : (Dictionary<string, dynamic>)character["inventory"];
+                var value = property.GetValue(character);
+                mappedCharacter[property.Name] = value;
+            }
 
+            var inventoryParsed = new List<object>();
+            if (character.Inventory != null)
+            {
+                var inventory = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(character.Inventory);
                 foreach (var slotId in inventory.Keys)
                 {
                     try
                     {
-                        if (slotId != null && int.Parse(slotId) >= 0)
-                        {
-                            var itemRef = Items.GetItemByRef(inventory[slotId]["ItemRef"].ToString());
-                            inventory[slotId]["slotId"] = int.Parse(slotId);
-                            inventory[slotId]["rarity"] = itemRef.Rarity;
-                            inventory[slotId]["goldCost"] = itemRef.GoldCost;
-                            inventoryParsed.Add(inventory[slotId]);
-                        }
+                        var inventorySlot = JsonConvert.DeserializeObject<MoveItemPayload>(inventory[slotId].ToString());
+                        var itemRef = Items.GetItemByRef(inventorySlot.ItemRef);
+                        inventory[slotId]["slotId"] = int.Parse(slotId);
+                        inventory[slotId]["rarity"] = itemRef?.Rarity ?? 0;
+                        inventory[slotId]["goldCost"] = itemRef?.GoldCost ?? 0;
+                        inventoryParsed.Add(inventory[slotId]);
                     }
                     catch { }
                 }
             }
 
             var actionbarParsed = new List<object>();
-
-            if (character["actionbar"] != null)
+            if (character.Actionbar != null)
             {
-                var actionbar = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(character["actionbar"].ToString());
-
+                var actionbar = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(character.Actionbar);
                 foreach (var slotId in actionbar.Keys)
                 {
                     try
                     {
-                        if (slotId != null && int.Parse(slotId) >= 0 &&
-                            (actionbar[slotId]["ActionName"].ToString() != "None" || actionbar[slotId]["ItemName"].ToString() != "None"))
+                        if (!string.IsNullOrEmpty(actionbar[slotId]["ActionName"].ToString()) || !string.IsNullOrEmpty(actionbar[slotId]["ItemName"].ToString()))
                         {
                             actionbar[slotId]["slotId"] = int.Parse(slotId);
                             actionbarParsed.Add(actionbar[slotId]);
@@ -556,38 +566,41 @@ namespace Server
                 }
             }
 
-            character["skills"] = character["skills"] != null ? JsonConvert.DeserializeObject(character["skills"].ToString()) : null;
-            character["inventory"] = inventoryParsed.Count > 0 ? inventoryParsed : new List<object>();
-            character["actionbar"] = actionbarParsed.Count > 0 ? actionbarParsed : new List<object>();
+            mappedCharacter["ChestArmor"] = character.ChestArmor != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.ChestArmor)) : null;
+            mappedCharacter["HelmetArmor"] = character.HelmetArmor != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.HelmetArmor)) : null;
+            mappedCharacter["BootsArmor"] = character.BootsArmor != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.BootsArmor)) : null;
+            mappedCharacter["GlovesArmor"] = character.GlovesArmor != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.GlovesArmor)) : null;
+            mappedCharacter["PantsArmor"] = character.PantsArmor != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.PantsArmor)) : null;
+            mappedCharacter["Robe"] = character.Robe != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.Robe)) : null;
+            mappedCharacter["Cloak"] = character.Cloak != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.Cloak)) : null;
+            mappedCharacter["Ring01"] = character.Ring01 != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.Ring01)) : null;
+            mappedCharacter["Ring02"] = character.Ring02 != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.Ring02)) : null;
+            mappedCharacter["Necklance"] = character.Necklance != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.Necklance)) : null;
+            mappedCharacter["Offhand"] = character.Offhand != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.Offhand)) : null;
+            mappedCharacter["Mainhand"] = character.Mainhand != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.Mainhand)) : null;
+            mappedCharacter["Instrument"] = character.Instrument != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.Instrument)) : null;
+            mappedCharacter["Pet"] = character.Pet != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.Pet)) : null;
+            mappedCharacter["Mount"] = character.Mount != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.Mount)) : null;
+            mappedCharacter["Pickaxetool"] = character.PickaxeTool != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.PickaxeTool)) : null;
+            mappedCharacter["Axetool"] = character.AxeTool != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.AxeTool)) : null;
+            mappedCharacter["Scythetool"] = character.ScytheTool != null ? GetRarity(JsonConvert.DeserializeObject<Dictionary<string, object>>(character.ScytheTool)) : null;
 
-            // Equipments parsing
-            character["chestArmor"] = character["chestArmor"] != null ? GetRarity(JsonConvert.DeserializeObject(character["chestArmor"].ToString())) : null;
-            // (repeat similar assignments for all equipment slots like helmetArmor, glovesArmor, etc.)
+            var dailyQuestsMetadata = character.DailyQuestsMetadata != null ? JsonConvert.DeserializeObject<Dictionary<string, object>>(character.DailyQuestsMetadata) : null;
+            var dailyQuests = DailyQuests.GetQuests(character.DailyQuestsIndex, dailyQuestsMetadata);
 
-            // Daily Quests
-            var dailyMetadata = character["dailyQuestsMetadata"];
-            try
-            {
-                if (dailyMetadata != null && dailyMetadata is string)
-                    dailyMetadata = JsonConvert.DeserializeObject(dailyMetadata.ToString());
-            }
-            catch { }
+            var friends = !string.IsNullOrEmpty(character.Friends) ? JsonConvert.DeserializeObject<List<string>>(character.Friends) : new List<string>();
+            var friendsRequests = !string.IsNullOrEmpty(character.FriendsRequests) ? JsonConvert.DeserializeObject<List<string>>(character.FriendsRequests) : new List<string>();
 
-            var dailyQuests = DailyQuests.GetQuests((int)character["dailyQuestsIndex"], dailyMetadata as Dictionary<string, object>);
-            character["dailyQuests"] = dailyQuests != null ? dailyQuests.GenerateMetadata(true) : new List<object>();
+            var archivements = !string.IsNullOrEmpty(character.Archivements) ? new HashSet<string>(JsonConvert.DeserializeObject<List<string>>(character.Archivements)) : new HashSet<string>();
 
-            // Friends
-            character["friends"] = character["friends"] != null ? JsonConvert.DeserializeObject(character["friends"].ToString()) : new List<object>();
-            character["friendsRequests"] = character["friendsRequests"] != null ? JsonConvert.DeserializeObject(character["friendsRequests"].ToString()) : new List<object>();
+            mappedCharacter["Inventory"] = inventoryParsed;
+            mappedCharacter["Actionbar"] = actionbarParsed;
+            mappedCharacter["DailyQuests"] = dailyQuests?.GenerateMetadata(true);
+            mappedCharacter["Friends"] = friends;
+            mappedCharacter["FriendsRequests"] = friendsRequests;
+            mappedCharacter["Archivements"] = archivements.ToList();
 
-            // Steam achievements
-            character["archivements"] = character["archivements"] != null && character["archivements"] is string
-                ? JsonConvert.DeserializeObject<List<string>>(character["archivements"].ToString())
-                : new List<string>();
-
-            character["archivements"] = new HashSet<string>(character["archivements"] as List<string>).ToList();
-
-            return JsonConvert.SerializeObject(character);
+            return JsonConvert.SerializeObject(mappedCharacter);
         }
 
         public static Dictionary<string, object> GetRarity(Dictionary<string, object> data)

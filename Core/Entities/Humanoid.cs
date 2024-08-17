@@ -1,4 +1,3 @@
-
 namespace Server
 {
     public class Humanoid : Entity
@@ -32,7 +31,7 @@ namespace Server
 
         public List<Equipament> Equipaments { get; private set; } = new List<Equipament>();
 
-        public void Init()
+        public override void Init()
         {
             Kind = EntitiesKind.Monster;
             States = new StateFlags(EntityStates.None);
@@ -60,7 +59,18 @@ namespace Server
                 Inventory.AddItem(itemRef, amount, slotId);
         }
 
-        public async Task Equip(EquipmentType type, string itemId, string itemRef, bool ring02 = false)
+        private bool IsTwoHandedWeapon(WeaponType weaponType)
+        {
+            return weaponType == WeaponType.TwoHandedAxe ||
+                   weaponType == WeaponType.TwoHandedHammer ||
+                   weaponType == WeaponType.TwoHandedSword ||
+                   weaponType == WeaponType.Crossbow ||
+                   weaponType == WeaponType.Bow ||
+                   weaponType == WeaponType.Staff ||
+                   weaponType == WeaponType.Spear;
+        }
+
+        public virtual async Task Equip(EquipmentType type, string itemId, string itemRef, bool ring02 = false)
         {
             if (Inventory.HasItem(itemRef))
             {
@@ -130,22 +140,272 @@ namespace Server
             }
         }
         
-        private bool IsTwoHandedWeapon(WeaponType weaponType)
-        {
-            return weaponType == WeaponType.TwoHandedAxe ||
-                   weaponType == WeaponType.TwoHandedHammer ||
-                   weaponType == WeaponType.TwoHandedSword ||
-                   weaponType == WeaponType.Crossbow ||
-                   weaponType == WeaponType.Bow ||
-                   weaponType == WeaponType.Staff ||
-                   weaponType == WeaponType.Spear;
-        }
-
-        public async Task Desequip(EquipmentType type, bool ring02 = false, bool broadcast = false, int slotId = -1)
+        public virtual async Task Desequip(EquipmentType type, bool ring02 = false, bool broadcast = false, int slotId = -1)
         {
             switch (type)
             {
-                // Implementação dos cases de desequipamento semelhante ao do TypeScript
+                case EquipmentType.Helmet:
+                    if (Helmet != null)
+                    {
+                        string helmetRef = Helmet.ItemRef;
+                        Helmet = null;
+
+                        AddToInventory(helmetRef, 1, slotId);
+                        (Items.GetItemByRef(helmetRef) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Helmet });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Chest:
+                    if (Chest != null)
+                    {
+                        string chestRef = Chest.ItemRef;
+                        Chest = null;
+
+                        AddToInventory(chestRef, 1, slotId);
+                        (Items.GetItemByRef(chestRef) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Chest });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Gloves:
+                    if (Gloves != null)
+                    {
+                        string glovesRef = Gloves.ItemRef;
+                        Gloves = null;
+
+                        AddToInventory(glovesRef, 1, slotId);
+                        (Items.GetItemByRef(glovesRef) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Gloves });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Pants:
+                    if (Pants != null)
+                    {
+                        string pantsRef = Pants.ItemRef;
+                        Pants = null;
+
+                        AddToInventory(pantsRef, 1, slotId);
+                        (Items.GetItemByRef(pantsRef) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Pants });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Boots:
+                    if (Boots != null)
+                    {
+                        string bootsRef = Boots.ItemRef;
+                        Boots = null;
+
+                        AddToInventory(bootsRef, 1, slotId);
+                        (Items.GetItemByRef(bootsRef) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Boots });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Cloak:
+                    if (Cloak != null)
+                    {
+                        string cloakRef = Cloak.ItemRef;
+                        Cloak = null;
+
+                        AddToInventory(cloakRef, 1, slotId);
+                        (Items.GetItemByRef(cloakRef) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Cloak });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Robe:
+                    if (Robe != null)
+                    {
+                        string robeRef = Robe.ItemRef;
+                        Robe = null;
+
+                        AddToInventory(robeRef, 1, slotId);
+                        (Items.GetItemByRef(robeRef) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Robe });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Necklance:
+                    if (Necklance != null)
+                    {
+                        string necklaceRef = Necklance.ItemRef;
+                        Necklance = null;
+
+                        AddToInventory(necklaceRef, 1, slotId);
+                        (Items.GetItemByRef(necklaceRef) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Necklance });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Ring:
+                    if (Ring01 != null && !ring02)
+                    {
+                        string ring01Ref = Ring01.ItemRef;
+                        Ring01 = null;
+
+                        AddToInventory(ring01Ref, 1, slotId);
+                        (Items.GetItemByRef(ring01Ref) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Ring });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    else if (Ring02 != null && ring02)
+                    {
+                        string ring02Ref = Ring02.ItemRef;
+                        Ring02 = null;
+
+                        AddToInventory(ring02Ref, 1, slotId);
+                        (Items.GetItemByRef(ring02Ref) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Ring, ring02 = true });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Offhand:
+                    if (Offhand != null)
+                    {
+                        string offhandRef = Offhand.ItemRef;
+                        Offhand = null;
+
+                        AddToInventory(offhandRef, 1, slotId);
+                        (Items.GetItemByRef(offhandRef) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Offhand });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Weapon:
+                    if (Mainhand != null)
+                    {
+                        string mainhandRef = Mainhand.ItemRef;
+                        Mainhand = null;
+
+                        AddToInventory(mainhandRef, 1, slotId);
+                        (Items.GetItemByRef(mainhandRef) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Weapon });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Instrument:
+                    if (Instrument != null)
+                    {
+                        string instrumentRef = Instrument.ItemRef;
+                        Instrument = null;
+
+                        AddToInventory(instrumentRef, 1, slotId);
+                        (Items.GetItemByRef(instrumentRef) as Equipament)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Instrument });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Pet:
+                    if (Pet != null)
+                    {
+                        string petRef = Pet.ItemRef;
+                        Pet = null;
+
+                        AddToInventory(petRef, 1, slotId);
+                        (Items.GetItemByRef(petRef) as PetItem)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Pet });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.Mount:
+                    if (Mount != null)
+                    {
+                        string mountRef = Mount.ItemRef;
+                        Mount = null;
+
+                        AddToInventory(mountRef, 1, slotId);
+                        (Items.GetItemByRef(mountRef) as MountItem)?.OnDesequip(this);
+                        Broadcast(Packet.Get(ServerPacketType.Desequip), new { Type = EquipmentType.Mount });
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.PickaxeTool:
+                    if (Pickaxetool != null)
+                    {
+                        string pickaxeRef = Pickaxetool.ItemRef;
+                        Pickaxetool = null;
+
+                        AddToInventory(pickaxeRef, 1, slotId);
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.AxeTool:
+                    if (Axetool != null)
+                    {
+                        string axeRef = Axetool.ItemRef;
+                        Axetool = null;
+
+                        AddToInventory(axeRef, 1, slotId);
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
+                case EquipmentType.ScytheTool:
+                    if (Scythetool != null)
+                    {
+                        string scytheRef = Scythetool.ItemRef;
+                        Scythetool = null;
+
+                        AddToInventory(scytheRef, 1, slotId);
+
+                        RefreshEquipamentsList();
+                        CalculateStatics();
+                        Save();
+                    }
+                    break;
             }
         }
 
@@ -302,6 +562,62 @@ namespace Server
         {
             var weapon = Mainhand != null ? Items.GetItemByRef(Mainhand.ItemRef) as Weapon : null;
             return weapon != null ? weapon.WeaponType : WeaponType.None;
+        }
+
+        //Statics
+        public override void CalculateStatics()
+        {
+            base.CalculateStatics();
+
+            // Bonus stats
+            BonusStr = GetEquipamentsAttr(AttributeType.BonusStr);
+            BonusDex = GetEquipamentsAttr(AttributeType.BonusDex);
+            BonusInt = GetEquipamentsAttr(AttributeType.BonusInt);
+            BonusVig = GetEquipamentsAttr(AttributeType.BonusVig);
+            BonusAgi = GetEquipamentsAttr(AttributeType.BonusAgi);
+            BonusLuc = GetEquipamentsAttr(AttributeType.BonusLuc);
+
+            // Resistances
+            PhysicalResistance = Math.Min(PhysicalResistance + GetEquipamentsResistence(ResistanceType.Physical), 70);
+            FireResistance = Math.Min(FireResistance + GetEquipamentsResistence(ResistanceType.Fire), 70);
+            ColdResistance = Math.Min(ColdResistance + GetEquipamentsResistence(ResistanceType.Cold), 70);
+            PoisonResistance = Math.Min(PoisonResistance + GetEquipamentsResistence(ResistanceType.Poison), 70);
+            EnergyResistance = Math.Min(EnergyResistance + GetEquipamentsResistence(ResistanceType.Energy), 70);
+            LightResistance = Math.Min(LightResistance + GetEquipamentsResistence(ResistanceType.Light), 70);
+            DarkResistance = Math.Min(DarkResistance + GetEquipamentsResistence(ResistanceType.Dark), 70);
+
+            // Regeneration
+            LifeRegeneration = GetEquipamentsAttr(AttributeType.HealthRegen);
+            ManaRegeneration = GetEquipamentsAttr(AttributeType.ManaRegen);
+            StaminaRegeneration = GetEquipamentsAttr(AttributeType.StaminaRegen);
+
+            // Statics
+            BonusPhysicalDamage = GetEquipamentsAttr(AttributeType.BonusDamage);
+            BonusMagicDamage = GetEquipamentsAttr(AttributeType.BonusMagicDamage);
+            WeaponDamage = GetWeaponDiceDamage().ToString();
+            WeaponSpeed = GetWeaponSpeed();
+            CriticalChance = GetEquipamentsAttr(AttributeType.CriticalChance);
+            CriticalDamage = GetEquipamentsAttr(AttributeType.CriticalDamage);
+            DamageReduction = GetEquipamentsAttr(AttributeType.DamageReduction);
+            DodgeChance = GetEquipamentsAttr(AttributeType.DodgeChance);
+            ReflectionPhysicalDamage = GetEquipamentsAttr(AttributeType.ReflectPhysical);
+            ReflectionMagicDamage = GetEquipamentsAttr(AttributeType.ReflectSpell);
+            LowerManaCost = GetEquipamentsAttr(AttributeType.LowerManaCost);
+            FasterCasting = GetEquipamentsAttr(AttributeType.FasterCasting);
+            CooldownReduction = GetEquipamentsAttr(AttributeType.CooldownReduction);
+
+            // Elemental Damage
+            FireDamage = GetEquipamentsAttr(AttributeType.FireDamage);
+            ColdDamage = GetEquipamentsAttr(AttributeType.ColdDamage);
+            PoisonDamage = GetEquipamentsAttr(AttributeType.PoisonDamage);
+            EnergyDamage = GetEquipamentsAttr(AttributeType.EnergyDamage);
+            LightDamage = GetEquipamentsAttr(AttributeType.LightDamage);
+            DarkDamage = GetEquipamentsAttr(AttributeType.DarkDamage);
+
+            // Collect bonuses
+            BonusCollectsMineral = GetEquipamentsAttr(AttributeType.BonusCollectsMineral);
+            BonusCollectsSkins = GetEquipamentsAttr(AttributeType.BonusCollectsSkins);
+            BonusCollectsWood = GetEquipamentsAttr(AttributeType.BonusCollectsWood);
         }
     }
 }

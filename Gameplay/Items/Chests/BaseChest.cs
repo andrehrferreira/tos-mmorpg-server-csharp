@@ -4,12 +4,18 @@ namespace Server.Gameplay.Items
     {
         private readonly Dictionary<Type, LootRef> DropsPossibility = new Dictionary<Type, LootRef>();
 
-        public void DropChance(Type cls, int chance, int amountMin, int amountMax = 1)
+        public void DropChance(Type cls, float chance, int amountMin, int amountMax = 1)
         {
             DropsPossibility[cls] = new LootRef(chance, amountMin, amountMax);
         }
 
-        /*public override async Task Use(Entity entity)
+        public void DropChance<T>(float chance, int amountMin, int amountMax = 1) where T : Item
+        {
+            var type = typeof(T);
+            DropsPossibility[type] = new LootRef(chance, amountMin, amountMax);
+        }
+
+        public override async Task Use(Entity entity)
         {
             if (entity is Player player && player.Socket != null)
             {
@@ -27,6 +33,6 @@ namespace Server.Gameplay.Items
 
                 await Task.CompletedTask;
             }
-        }*/
+        }
     }
 }

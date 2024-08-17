@@ -77,6 +77,7 @@ namespace Server
         public Entity TeamOwner = null;
         public Dictionary<string, int> DamageCauser = new Dictionary<string, int>();
         public bool InAction = false;
+        public bool InHealAction = false;
         public bool DestroyOnDie = false;
         public Guild Guild = null;
 
@@ -304,9 +305,9 @@ namespace Server
             return null;
         }
 
-        public void Init() { }
+        public virtual void Init() { }
 
-        public void Update()
+        public virtual void Update()
         {
             if (Map == null || Removed)
                 return;
@@ -889,7 +890,7 @@ namespace Server
             }
         }
 
-        public void GainSkillExperience(SkillName skill, int gain = 3, bool saveOnDatabase = true)
+        public virtual void GainSkillExperience(SkillName skill, int gain = 3, bool saveOnDatabase = true)
         {
             try
             {
@@ -983,9 +984,9 @@ namespace Server
         }
 
         //Actionbar
-        public void setAction(string action, string itemRef, int index) {}
+        public virtual void SetAction(string action, string itemRef, int index) {}
 
-        public void clearAction(int index) {}
+        public virtual void ClearAction(int index) {}
 
         //Target
         public void SelectTarget(string targetName, Entity target)
